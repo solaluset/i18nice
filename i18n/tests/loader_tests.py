@@ -194,7 +194,7 @@ class TestFileLoader(unittest.TestCase):
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
         config.set("filename_format", "{locale}.{format}")
         config.set('skip_locale_root_data', True)
-        config.set("locale", ["en", "pl"])
+        config.set("locale", "en")
         resource_loader.search_translation("COMMON.VERSION")
         self.assertTrue(translations.has("COMMON.VERSION"))
         self.assertEqual(translations.get("COMMON.VERSION"), "version")
@@ -206,7 +206,7 @@ class TestFileLoader(unittest.TestCase):
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
         config.set("filename_format", "{locale}.{format}")
         config.set('skip_locale_root_data', True)
-        config.set("locale", ["en", "pl"])
+        config.set("locale", "en")
         resource_loader.search_translation("COMMON.VERSION", locale="pl")
         self.assertTrue(translations.has("COMMON.VERSION", locale="pl"))
         self.assertEqual(translations.get("COMMON.VERSION", locale="pl"), "wersja")
@@ -235,6 +235,13 @@ class TestFileLoader(unittest.TestCase):
         self.assertTrue(translations.has("TOP_MENU.TOP_BAR.LOGS", locale="pl"))
         self.assertEqual(translations.get("TOP_MENU.TOP_BAR.LOGS", locale="pl"), "Logi")
 
+    def test_load_config(self):
+        resource_loader.init_python_loader()
+        resource_loader.load_config(os.path.join(RESOURCE_FOLDER, "settings", "working_config.py"))
+        self.assertEqual(config.get("locale"), "test")
+        self.assertEqual(config.get("fallback"), "en")
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)
-unittest.TextTestRunner(verbosity=2).run(suite)
+
+if __name__ == "__main__":
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)
+    unittest.TextTestRunner(verbosity=2).run(suite)

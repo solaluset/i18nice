@@ -30,6 +30,7 @@ class TestTranslationFormat(unittest.TestCase):
         reload(config)
         config.set('load_path', [os.path.join(RESOURCE_FOLDER, 'translations')])
         translations.add('foo.hi', 'Hello %{name} !')
+        translations.add('foo.hi2', 'Hello ${name} !')
         translations.add('foo.hello', 'Salut %{name} !', locale='fr')
         translations.add('foo.basic_plural', {
             'one': '1 elem',
@@ -67,7 +68,10 @@ class TestTranslationFormat(unittest.TestCase):
 
     def test_locale_change(self):
         config.set('locale', 'fr')
+        config.set('fallback', 'fr')
+        translations.add('foo.goodbye', 'Au revoir!')
         self.assertEqual(t('foo.hello', name='Bob'), 'Salut Bob !')
+        self.assertEqual(t('foo.goodbye'), 'Au revoir!')
 
     def test_fallback(self):
         config.set('fallback', 'fr')
@@ -161,3 +165,7 @@ class TestTranslationFormat(unittest.TestCase):
         custom_functions.add_function('f', lambda **kw: kw['value'] - 1, config.get('locale'))
         self.assertEqual(t('foo.comma_separated_args', value=1), '1')
         config.set('argument_delimiter', '|')
+
+    def test_placeholder_delimiter_change(self):
+        config.set('placeholder_delimiter', '$')
+        self.assertEqual(t('foo.hi2', name='Bob'), 'Hello Bob !')

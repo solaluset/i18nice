@@ -32,6 +32,13 @@ settings = {
 def set(key, value):
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
+    if key == 'placeholder_delimiter':
+        # hacky trick to reload formatter's configuration
+        from .translator import TranslationFormatter
+
+        TranslationFormatter.delimiter = value
+        del TranslationFormatter.pattern
+        TranslationFormatter.__init_subclass__()
     settings[key] = value
 
 def get(key):
