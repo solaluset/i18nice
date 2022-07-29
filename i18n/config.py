@@ -29,6 +29,8 @@ settings = {
 }
 
 def set(key, value):
+    if key not in settings:
+        raise KeyError("Invalid setting: {0}".format(key))
     settings[key] = value
 
 def get(key):

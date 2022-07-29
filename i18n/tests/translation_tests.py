@@ -131,3 +131,7 @@ class TestTranslationFormat(unittest.TestCase):
         config.set("locale", "en")
         resource_loader.init_json_loader()
         self.assertEqual(t('COMMON.EXECUTE', locale="pl"), 'Wykonaj')
+
+    def test_invalid_setting(self):
+        with self.assertRaises(KeyError):
+            config.set("asdafs", True)
