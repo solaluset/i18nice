@@ -25,7 +25,8 @@ settings = {
     'namespace_delimiter': '.',
     'plural_few': 5,
     'skip_locale_root_data': False,
-    'enable_memoization': False
+    'enable_memoization': False,
+    'argument_delimiter': '|'
 }
 
 def set(key, value):

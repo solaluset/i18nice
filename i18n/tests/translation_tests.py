@@ -10,6 +10,7 @@ from i18n import resource_loader
 from i18n.translator import t
 from i18n import translations
 from i18n import config
+from i18n import custom_functions
 
 try:
     reload  # Python 2.7
@@ -43,6 +44,9 @@ class TestTranslationFormat(unittest.TestCase):
         translations.add('foo.bad_plural', {
             'bar': 'foo elems'
         })
+        translations.add('foo.custom_func', '%{count} day%{p(|s)}')
+        translations.add('foo.inexistent_func', '%{a(b|c)}')
+        translations.add('foo.comma_separated_args', '%{f(1,2,3)}')
 
     def setUp(self):
         config.set('error_on_missing_translation', False)
@@ -135,3 +139,25 @@ class TestTranslationFormat(unittest.TestCase):
     def test_invalid_setting(self):
         with self.assertRaises(KeyError):
             config.set("asdafs", True)
+
+    def test_custom_function(self):
+        config.set('error_on_missing_plural', False)
+        custom_functions.add_function('p', lambda **kw: kw['count'] != 1, config.get('locale'))
+        self.assertEqual(t('foo.custom_func', count=1), '1 day')
+        self.assertEqual(t('foo.custom_func', count=2), '2 days')
+
+    def test_inexistent_function(self):
+        config.set('error_on_missing_placeholder', True)
+        with self.assertRaises(KeyError):
+            t('foo.inexistent_func')
+
+    def test_bad_func(self):
+        custom_functions.add_function('p', lambda **kw: kw, config.get('locale'))
+        with self.assertRaises(ValueError):
+            t('foo.custom_func')
+
+    def test_argument_delimiter_change(self):
+        config.set('argument_delimiter', ',')
+        custom_functions.add_function('f', lambda **kw: kw['value'] - 1, config.get('locale'))
+        self.assertEqual(t('foo.comma_separated_args', value=1), '1')
+        config.set('argument_delimiter', '|')

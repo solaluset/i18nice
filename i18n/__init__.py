@@ -2,6 +2,7 @@ from . import resource_loader
 from .resource_loader import I18nFileLoadError, register_loader, load_config
 from .translator import t
 from .translations import add as add_translation
+from .custom_functions import add_function
 from . import config
 from .config import set, get
 

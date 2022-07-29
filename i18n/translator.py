@@ -3,19 +3,51 @@ from string import Template
 from . import config
 from . import resource_loader
 from . import translations
+from .custom_functions import get_function
 
 
-class TranslationFormatter(Template):
+class TranslationFormatter(Template, dict):
     delimiter = config.get('placeholder_delimiter')
+    idpattern = r"""
+        \w+                      # name
+        (
+            \(
+                [^\(\){}]*       # arguments
+            \)
+        )?
+    """
 
     def __init__(self, template):
         super(TranslationFormatter, self).__init__(template)
 
-    def format(self, **kwargs):
+    def format(self, locale, **kwargs):
+        self.clear()
+        self.update(kwargs)
+        self.locale = locale
         if config.get('error_on_missing_placeholder'):
-            return self.substitute(**kwargs)
+            return self.substitute(self)
         else:
-            return self.safe_substitute(**kwargs)
+            return self.safe_substitute(self)
+
+    def __getitem__(self, key: str):
+        name, _, args = key.partition("(")
+        if args:
+            f = get_function(name, self.locale)
+            if f:
+                i = f(**self)
+                args = args.strip(')').split(config.get('argument_delimiter'))
+                try:
+                    return args[i]
+                except (IndexError, TypeError) as e:
+                    raise ValueError(
+                        "No argument {0!r} for function {1!r} (in {2!r})"
+                        .format(i, name, self.template)
+                    ) from e
+            raise KeyError(
+                "No function {0!r} found for locale {1!r} (in {2!r})"
+                .format(name, self.locale, self.template)
+            )
+        return super().__getitem__(key)
 
 
 def t(key, **kwargs):
@@ -41,7 +73,7 @@ def translate(key, **kwargs):
     translation = translations.get(key, locale=locale)
     if 'count' in kwargs:
         translation = pluralize(key, translation, kwargs['count'])
-    return TranslationFormatter(translation).format(**kwargs)
+    return TranslationFormatter(translation).format(locale, **kwargs)
 
 
 def pluralize(key, translation, count):
