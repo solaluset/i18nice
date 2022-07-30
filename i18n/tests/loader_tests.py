@@ -94,24 +94,15 @@ class TestFileLoader(unittest.TestCase):
         actually loaded from memory and not from disk access.'''
         memoization_file_name = 'memoize.en.yml'
         # create the file and write the data in it
-        try:
-            d = tempfile.TemporaryDirectory()
-            tmp_dir_name = d.name
-        except AttributeError:
-            # we are running python2, use mkdtemp
-            tmp_dir_name = tempfile.mkdtemp()
-        fd = open('{}/{}'.format(tmp_dir_name, memoization_file_name), 'w')
-        fd.write('en:\n  key: value')
-        fd.close()
-        # create the loader and pass the file to it
-        resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file(memoization_file_name, tmp_dir_name)
-        # try loading the value to make sure it's working
-        self.assertEqual(t('memoize.key'), 'value')
-        # now delete the file and directory
-        # we are running python2, delete manually
-        import shutil
-        shutil.rmtree(tmp_dir_name)
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            fd = open('{}/{}'.format(tmp_dir_name, memoization_file_name), 'w')
+            fd.write('en:\n  key: value')
+            fd.close()
+            # create the loader and pass the file to it
+            resource_loader.init_yaml_loader()
+            resource_loader.load_translation_file(memoization_file_name, tmp_dir_name)
+            # try loading the value to make sure it's working
+            self.assertEqual(t('memoize.key'), 'value')
         # test the translation again to make sure it's loaded from memory
         self.assertEqual(t('memoize.key'), 'value')
 
