@@ -1,4 +1,4 @@
-# python-i18n [![Build Status](https://travis-ci.org/danhper/python-i18n.png?branch=master)](https://travis-ci.org/danhper/python-i18n) [![Coverage Status](https://coveralls.io/repos/github/danhper/python-i18n/badge.svg?branch=master)](https://coveralls.io/github/danhper/python-i18n?branch=master) [![Code Climate](https://codeclimate.com/github/danhper/python-i18n/badges/gpa.svg)](https://codeclimate.com/github/danhper/python-i18n)
+# python-i18n [![tests](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml)
 
 
 This library provides i18n functionality for Python 3 out of the box. The usage is mostly based on Rails i18n library.
@@ -102,4 +102,26 @@ However we would like to use this i18n .json file in our Python sub-project or m
 
     i18n.set('skip_locale_root_data', True)
 
+### Custom functions
 
+Add your custom functions and choose translation variants during runtime.
+All arguments given to `t` would be passed to the function as keyword arguments.
+This may be an alternative for pluralization, especially if a language has more than one plural form.
+
+Example (correct plural form of days in Ukrainian):
+
+    i18n.set("locale", "uk")
+    i18n.add_translation("days", "%{count} %{p(день|дні|днів)}")
+
+    def determine_plural_form(*, count):
+        count = abs(count)
+        if count % 10 >= 5 or count % 10 == 0 or (count % 100) in range(11, 20):
+            return 2
+        elif count % 10 == 1:
+            return 0
+        return 1
+
+    i18n.add_function("p", determine_plural_form, "uk")
+    i18n.t("days", count=1) # 1 день
+    i18n.t("days", count=2) # 2 дні
+    i18n.t("days", count=5) # 5 днів
