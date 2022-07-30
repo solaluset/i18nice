@@ -1,0 +1,33 @@
+name: tests
+on: [push]
+jobs:
+  run-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version:
+          - "2.7"
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11.0-beta.5"
+          - "pypy-3.7"
+          - "pypy-3.8"
+          - "pypy-3.9"
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: python i18n/tests/run_tests.py

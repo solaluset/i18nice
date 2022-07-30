@@ -1,4 +1,8 @@
+import sys
 import unittest
+from os.path import dirname
+
+sys.path.insert(0, dirname(dirname(dirname(__file__))))
 
 from i18n.tests.translation_tests import TestTranslationFormat
 
@@ -17,4 +21,6 @@ def suite():
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()
     test_suite = suite()
-    runner.run(test_suite)
+    result = runner.run(test_suite)
+    sys.exit(len(result.errors))
+
