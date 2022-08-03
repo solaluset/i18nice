@@ -1,4 +1,4 @@
-# python-i18n [![tests](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml)
+# python-i18n [![tests](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/Krutyi-4el/python-i18n/badge.svg)](https://coveralls.io/github/Krutyi-4el/python-i18n)
 
 
 This library provides i18n functionality for Python 3 out of the box. The usage is mostly based on Rails i18n library.
