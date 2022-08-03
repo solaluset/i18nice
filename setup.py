@@ -2,14 +2,14 @@ from setuptools import setup
 
 setup(
     name='python-i18n',
-    version='0.3.9',
+    version='0.4.0',
     description='Translation library for Python',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     author='Daniel Perez',
     author_email='tuvistavie@gmail.com',
-    url='https://github.com/tuvistavie/python-i18n',
-    download_url='https://github.com/tuvistavie/python-i18n/archive/master.zip',
+    url='https://github.com/Krutyi-4el/python-i18n',
+    download_url='https://github.com/Krutyi-4el/python-i18n/archive/master.zip',
     license='MIT',
     packages=['i18n', 'i18n.loaders', 'i18n.tests'],
     include_package_data=True,
@@ -24,7 +24,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries'
     ],

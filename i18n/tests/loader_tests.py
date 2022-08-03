@@ -94,24 +94,15 @@ class TestFileLoader(unittest.TestCase):
         actually loaded from memory and not from disk access.'''
         memoization_file_name = 'memoize.en.yml'
         # create the file and write the data in it
-        try:
-            d = tempfile.TemporaryDirectory()
-            tmp_dir_name = d.name
-        except AttributeError:
-            # we are running python2, use mkdtemp
-            tmp_dir_name = tempfile.mkdtemp()
-        fd = open('{}/{}'.format(tmp_dir_name, memoization_file_name), 'w')
-        fd.write('en:\n  key: value')
-        fd.close()
-        # create the loader and pass the file to it
-        resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file(memoization_file_name, tmp_dir_name)
-        # try loading the value to make sure it's working
-        self.assertEqual(t('memoize.key'), 'value')
-        # now delete the file and directory
-        # we are running python2, delete manually
-        import shutil
-        shutil.rmtree(tmp_dir_name)
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            fd = open('{}/{}'.format(tmp_dir_name, memoization_file_name), 'w')
+            fd.write('en:\n  key: value')
+            fd.close()
+            # create the loader and pass the file to it
+            resource_loader.init_yaml_loader()
+            resource_loader.load_translation_file(memoization_file_name, tmp_dir_name)
+            # try loading the value to make sure it's working
+            self.assertEqual(t('memoize.key'), 'value')
         # test the translation again to make sure it's loaded from memory
         self.assertEqual(t('memoize.key'), 'value')
 
@@ -194,7 +185,7 @@ class TestFileLoader(unittest.TestCase):
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
         config.set("filename_format", "{locale}.{format}")
         config.set('skip_locale_root_data', True)
-        config.set("locale", ["en", "pl"])
+        config.set("locale", "en")
         resource_loader.search_translation("COMMON.VERSION")
         self.assertTrue(translations.has("COMMON.VERSION"))
         self.assertEqual(translations.get("COMMON.VERSION"), "version")
@@ -206,7 +197,7 @@ class TestFileLoader(unittest.TestCase):
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
         config.set("filename_format", "{locale}.{format}")
         config.set('skip_locale_root_data', True)
-        config.set("locale", ["en", "pl"])
+        config.set("locale", "en")
         resource_loader.search_translation("COMMON.VERSION", locale="pl")
         self.assertTrue(translations.has("COMMON.VERSION", locale="pl"))
         self.assertEqual(translations.get("COMMON.VERSION", locale="pl"), "wersja")
@@ -235,6 +226,13 @@ class TestFileLoader(unittest.TestCase):
         self.assertTrue(translations.has("TOP_MENU.TOP_BAR.LOGS", locale="pl"))
         self.assertEqual(translations.get("TOP_MENU.TOP_BAR.LOGS", locale="pl"), "Logi")
 
+    def test_load_config(self):
+        resource_loader.init_python_loader()
+        resource_loader.load_config(os.path.join(RESOURCE_FOLDER, "settings", "working_config.py"))
+        self.assertEqual(config.get("locale"), "test")
+        self.assertEqual(config.get("fallback"), "en")
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)
-unittest.TextTestRunner(verbosity=2).run(suite)
+
+if __name__ == "__main__":
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)
+    unittest.TextTestRunner(verbosity=2).run(suite)

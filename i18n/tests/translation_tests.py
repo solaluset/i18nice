@@ -10,6 +10,7 @@ from i18n import resource_loader
 from i18n.translator import t
 from i18n import translations
 from i18n import config
+from i18n import custom_functions
 
 try:
     reload  # Python 2.7
@@ -29,6 +30,7 @@ class TestTranslationFormat(unittest.TestCase):
         reload(config)
         config.set('load_path', [os.path.join(RESOURCE_FOLDER, 'translations')])
         translations.add('foo.hi', 'Hello %{name} !')
+        translations.add('foo.hi2', 'Hello ${name} !')
         translations.add('foo.hello', 'Salut %{name} !', locale='fr')
         translations.add('foo.basic_plural', {
             'one': '1 elem',
@@ -41,12 +43,20 @@ class TestTranslationFormat(unittest.TestCase):
             'many': '%{count} mails'
         })
         translations.add('foo.bad_plural', {
-            'bar': 'foo elems'
+            'bar': 'foo elems',
+            'baz': 'bar elems'
         })
+        translations.add('foo.custom_func', '%{count} day%{p(|s)}')
+        translations.add('foo.inexistent_func', '%{a(b|c)}')
+        translations.add('foo.comma_separated_args', '%{f(1,2,3)}')
 
     def setUp(self):
         config.set('error_on_missing_translation', False)
         config.set('error_on_missing_placeholder', False)
+        config.set('error_on_missing_plural', False)
+        config.set('on_missing_translation', None)
+        config.set('on_missing_placeholder', None)
+        config.set('on_missing_plural', None)
         config.set('fallback', 'en')
         config.set('locale', 'en')
 
@@ -61,9 +71,24 @@ class TestTranslationFormat(unittest.TestCase):
         with self.assertRaises(KeyError):
             t('foo.inexistent')
 
+    def test_new_missing_translation_error(self):
+        config.set('on_missing_translation', 'error')
+        with self.assertRaises(KeyError):
+            t('foo.inexistent')
+
+    def test_missing_translation_handler(self):
+        def handler(key, locale):
+            return key + '_' + locale
+
+        config.set('on_missing_translation', handler)
+        self.assertEqual(t('foo.inexistent'), 'foo.inexistent_en')
+
     def test_locale_change(self):
         config.set('locale', 'fr')
+        config.set('fallback', 'fr')
+        translations.add('foo.goodbye', 'Au revoir!')
         self.assertEqual(t('foo.hello', name='Bob'), 'Salut Bob !')
+        self.assertEqual(t('foo.goodbye'), 'Au revoir!')
 
     def test_fallback(self):
         config.set('fallback', 'fr')
@@ -84,6 +109,19 @@ class TestTranslationFormat(unittest.TestCase):
         with self.assertRaises(KeyError):
             t('foo.hi')
 
+    def test_new_missing_placeholder_error(self):
+        config.set('on_missing_placeholder', 'error')
+        with self.assertRaises(KeyError):
+            t('foo.hi')
+
+    def test_missing_placeholder_handler(self):
+        def handler(key, translation_key, locale):
+            if key == 'name':
+                return 'stranger'
+
+        config.set('on_missing_placeholder', handler)
+        self.assertEqual(t('foo.hi'), 'Hello stranger !')
+
     def test_basic_pluralization(self):
         self.assertEqual(t('foo.basic_plural', count=0), '0 elems')
         self.assertEqual(t('foo.basic_plural', count=1), '1 elem')
@@ -96,11 +134,25 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo.plural', count=12), '12 mails')
 
     def test_bad_pluralization(self):
-        config.set('error_on_missing_plural', False)
         self.assertEqual(t('foo.normal_key', count=5), 'normal_value')
         config.set('error_on_missing_plural', True)
         with self.assertRaises(KeyError):
             t('foo.bad_plural', count=0)
+
+    def test_new_pluralization_error(self):
+        config.set('on_missing_plural', 'error')
+        with self.assertRaises(KeyError):
+            t('foo.bad_plural', count=0)
+
+    def test_bad_pluralization_handler(self):
+        def handler(key, translation, count):
+            if isinstance(translation, dict):
+                return translation[sorted(translation.keys())[count]]
+            return key
+
+        config.set('on_missing_plural', handler)
+        self.assertEqual(t('foo.bad_plural', count=0), 'foo elems')
+        self.assertEqual(t('foo.bad_plural', count=1), 'bar elems')
 
     def test_default(self):
         self.assertEqual(t('inexistent_key', default='foo'), 'foo')
@@ -131,3 +183,32 @@ class TestTranslationFormat(unittest.TestCase):
         config.set("locale", "en")
         resource_loader.init_json_loader()
         self.assertEqual(t('COMMON.EXECUTE', locale="pl"), 'Wykonaj')
+
+    def test_invalid_setting(self):
+        with self.assertRaises(KeyError):
+            config.set("asdafs", True)
+
+    def test_custom_function(self):
+        custom_functions.add_function('p', lambda **kw: kw['count'] != 1, config.get('locale'))
+        self.assertEqual(t('foo.custom_func', count=1), '1 day')
+        self.assertEqual(t('foo.custom_func', count=2), '2 days')
+
+    def test_inexistent_function(self):
+        config.set('error_on_missing_placeholder', True)
+        with self.assertRaises(KeyError):
+            t('foo.inexistent_func')
+
+    def test_bad_func(self):
+        custom_functions.add_function('p', lambda **kw: kw, config.get('locale'))
+        with self.assertRaises(ValueError):
+            t('foo.custom_func')
+
+    def test_argument_delimiter_change(self):
+        config.set('argument_delimiter', ',')
+        custom_functions.add_function('f', lambda **kw: kw['value'] - 1, config.get('locale'))
+        self.assertEqual(t('foo.comma_separated_args', value=1), '1')
+        config.set('argument_delimiter', '|')
+
+    def test_placeholder_delimiter_change(self):
+        config.set('placeholder_delimiter', '$')
+        self.assertEqual(t('foo.hi2', name='Bob'), 'Hello Bob !')

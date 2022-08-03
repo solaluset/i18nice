@@ -19,16 +19,29 @@ settings = {
     'fallback': 'en',
     'placeholder_delimiter': '%',
     'error_on_missing_translation': False,
+    'on_missing_translation': None,
     'error_on_missing_placeholder': False,
+    'on_missing_placeholder': None,
     'error_on_missing_plural': False,
+    'on_missing_plural': None,
     'encoding': 'utf-8',
     'namespace_delimiter': '.',
     'plural_few': 5,
     'skip_locale_root_data': False,
-    'enable_memoization': False
+    'enable_memoization': False,
+    'argument_delimiter': '|'
 }
 
 def set(key, value):
+    if key not in settings:
+        raise KeyError("Invalid setting: {0}".format(key))
+    if key == 'placeholder_delimiter':
+        # hacky trick to reload formatter's configuration
+        from .translator import TranslationFormatter
+
+        TranslationFormatter.delimiter = value
+        del TranslationFormatter.pattern
+        TranslationFormatter.__init_subclass__()
     settings[key] = value
 
 def get(key):
