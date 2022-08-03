@@ -7,11 +7,11 @@ This library provides i18n functionality for Python 3 out of the box. The usage 
 
 Just run
 
-    pip install python-i18n
+    pip install https://github.com/Krutyi-4el/python-i18n/archive/master.zip
 
 If you want to use YAML to store your translations, use
 
-    pip install python-i18n[YAML]
+    pip install https://github.com/Krutyi-4el/python-i18n/archive/master.zip#egg=python-i18n[YAML]
 
 ## Usage
 ### Basic usage
