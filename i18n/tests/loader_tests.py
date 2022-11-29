@@ -144,7 +144,7 @@ class TestFileLoader(unittest.TestCase):
         self.assertTrue(translations.has("foo.normal_key"))
         self.assertTrue(translations.has("foo.parent.nested_key"))
 
-    @unittest.skipUnless(json_available, "json library not available")
+    @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_plural(self):
         resource_loader.init_yaml_loader()
         resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
