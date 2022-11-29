@@ -1,23 +1,26 @@
 import os.path
 import sys
+from importlib import util
 
 from .loader import Loader, I18nFileLoadError
 
 
 class PythonLoader(Loader):
     """class to load python files"""
+
     def __init__(self):
         super(PythonLoader, self).__init__()
 
     def load_file(self, filename):
-        path, name = os.path.split(filename)
-        module_name, ext = os.path.splitext(name)
-        if path not in sys.path:
-            sys.path.append(path)
+        _, name = os.path.split(filename)
+        module_name, _ = os.path.splitext(name)
         try:
-            return __import__(module_name)
-        except ImportError:
-            raise I18nFileLoadError("error loading file {0}".format(filename))
+            spec = util.spec_from_file_location(module_name, filename)
+            module = util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        except Exception as e:
+            raise I18nFileLoadError("error loading file {0}".format(filename)) from e
 
     def parse_file(self, file_content):
         return file_content
