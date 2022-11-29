@@ -2,6 +2,7 @@ import os.path
 import sys
 from importlib import util
 
+from .. import config
 from .loader import Loader, I18nFileLoadError
 
 
@@ -14,10 +15,14 @@ class PythonLoader(Loader):
     def load_file(self, filename):
         _, name = os.path.split(filename)
         module_name, _ = os.path.splitext(name)
+        if module_name in sys.modules:
+            return sys.modules[module_name]
         try:
             spec = util.spec_from_file_location(module_name, filename)
             module = util.module_from_spec(spec)
             spec.loader.exec_module(module)
+            if config.get("enable_memoization"):
+                sys.modules[module_name] = module
             return module
         except Exception as e:
             raise I18nFileLoadError("error loading file {0}".format(filename)) from e
