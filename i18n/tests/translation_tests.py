@@ -49,6 +49,7 @@ class TestTranslationFormat(unittest.TestCase):
         config.set('error_on_missing_placeholder', False)
         config.set('fallback', 'en')
         config.set('locale', 'en')
+        config.set('file_format', 'py')
 
     def test_basic_translation(self):
         self.assertEqual(t('foo.normal_key'), 'normal_value')
