@@ -21,7 +21,7 @@ def load_resource(filename, root_data):
     extension = os.path.splitext(filename)[1][1:]
     if extension not in loaders:
         raise I18nFileLoadError("no loader available for extension {0}".format(extension))
-    return getattr(loaders[extension], "load_resource")(filename, root_data)
+    return loaders[extension].load_resource(filename, root_data)
 
 
 def init_loaders():

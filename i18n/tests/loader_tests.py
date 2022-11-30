@@ -83,28 +83,31 @@ class TestFileLoader(unittest.TestCase):
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
-    @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_memoization_with_file(self):
-        '''This test creates a temporary file with the help of the
-        tempfile library and writes a simple key: value dictionary in it.
-        It will then use that file to load the translations and, after having
-        enabled memoization, try to access it, causing the file to be (hopefully)
-        memoized. It will then _remove_ the temporary file and try to access again,
-        asserting that an error is not raised, thus making sure the data is
-        actually loaded from memory and not from disk access.'''
-        memoization_file_name = 'memoize.en.yml'
-        # create the file and write the data in it
+        """This test creates two files.
+        First is a dummy file.
+        Second is a script that will remove the dummy file and load a dict of translations.
+        Then we try to translate inexistent key to ensure that the script is not executed again.
+        """
+        config.set("enable_memoization", True)
+        config.set("file_format", "py")
+        resource_loader.init_python_loader()
+        memoization_file_name = 'memoize.en.py'
         with tempfile.TemporaryDirectory() as tmp_dir_name:
-            fd = open('{}/{}'.format(tmp_dir_name, memoization_file_name), 'w')
-            fd.write('en:\n  key: value')
+            i18n.load_path.append(tmp_dir_name)
+            dummy = os.path.join(tmp_dir_name, "dummy.txt")
+            open(dummy, "w").close()
+            fd = open(os.path.join(tmp_dir_name, memoization_file_name), 'w')
+            fd.write(f'''
+import os
+
+os.remove({dummy!r})
+
+en = {{"key": "value"}}
+            ''')
             fd.close()
-            # create the loader and pass the file to it
-            resource_loader.init_yaml_loader()
-            resource_loader.load_translation_file(memoization_file_name, tmp_dir_name)
-            # try loading the value to make sure it's working
             self.assertEqual(t('memoize.key'), 'value')
-        # test the translation again to make sure it's loaded from memory
-        self.assertEqual(t('memoize.key'), 'value')
+            self.assertEqual(t('memoize.key2'), 'memoize.key2')
 
 
     @unittest.skipUnless(json_available, "json library not available")
