@@ -40,11 +40,8 @@ If both `yaml` and `json` modules available and you want to use JSON to store tr
 
 ### Memoization
 
-Setting the configuration value `enable_memoization` in the settings dir will load the files from disk the first time they
-are loaded and then store their content in memory. On the next use the file content will be provided from memory and not
-loaded from disk, preventing disk access. While this can be useful in some contexts, keep in mind there is no current way of
-issuing a command to the reloader to re-read the files from disk, so if you are updating your translation file without restarting
-the interpreter do not use this option.
+Setting the configuration value `enable_memoization` will disable reloading of files every time when searching for missing translation.
+When translations are loaded, they're always stored in memory, hence it does not affect how existing translations are accessed.
  
 ### Namespaces
 
