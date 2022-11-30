@@ -58,14 +58,14 @@ If your files are in subfolders, the foldernames are also used as namespaces, so
 ## Functionalities
 ### Placeholder
 
-You can of course use placeholders in your translations. With the default configuration, the placeholders are used by inserting `%{placeholder_name}` in the ntranslation string. Here is a sample usage.
+You can of course use placeholders in your translations. With the default configuration, the placeholders are used by inserting `%{placeholder_name}` in the translation string. Here is a sample usage.
 
     i18n.add_translation('hi', 'Hello %{name} !')
     i18n.t('hi', name='Bob') # Hello Bob !
 
 ### Pluralization
 
-Pluralization is based on Rail i18n module. By passing a `count` variable to your translation, it will be pluralized. The translation value should be a dictionnary with at least the keys `one` and `many`. You can add a `zero` or `few` key when needed, if it is not present `many` will be used instead. Here is a sample usage.
+Pluralization is based on Rail i18n module. By passing a `count` variable to your translation, it will be pluralized. The translation value should be a dictionary with at least the keys `one` and `many`. You can add a `zero` or `few` key when needed, if it is not present `many` will be used instead. Here is a sample usage.
 
     i18n.add_translation('mail_number', {
         'zero': 'You do not have any mail.',
@@ -95,7 +95,7 @@ Sometimes i18n structure file came from another project or not contains root ele
     }
 
 However we would like to use this i18n .json file in our Python sub-project or micro service as base file for translations.
-`python-i18n` has special configuration tha is skipping locale eg. `en` root data element from the file.
+`python-i18n` has special configuration that is skipping locale eg. `en` root data element from the file.
 
     i18n.set('skip_locale_root_data', True)
 
@@ -104,13 +104,17 @@ However we would like to use this i18n .json file in our Python sub-project or m
 There are three config options for handling different situations.
 Setting it to `None` disables handling (default), `"error"` enables error throwing.
 You can also set your custom handlers:
+
 `on_missing_translation(key, locale, **kwargs)`
+
 `on_missing_plural(key, locale, translation, count)`
+
 `on_missing_placeholder(key, locale, translation, placeholder)`
 
 Example:
 
     import logging, i18n
+
     def handler(key, locale, text, name):
         logging.warning(f"Missing placeholder {name!r} while translating {key!r} to {locale!r} (in {text!r})")
         return "undefined"
