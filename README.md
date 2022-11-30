@@ -102,6 +102,29 @@ However we would like to use this i18n .json file in our Python sub-project or m
 
     i18n.set('skip_locale_root_data', True)
 
+### Error handling
+
+There are three config options for handling different situations.
+Setting it to `None` disables handling (default), `"error"` enables error throwing.
+You can also set your custom handlers:
+`on_missing_translation(key, locale, **kwargs)`
+`on_missing_plural(key, locale, translation, count)`
+`on_missing_placeholder(key, locale, translation, placeholder)`
+
+Example:
+
+    import logging, i18n
+    def handler(key, locale, text, name):
+        logging.warning(f"Missing placeholder {name!r} while translating {key!r} to {locale!r} (in {text!r})")
+        return "undefined"
+
+    i18n.set("on_missing_placeholder", handler)
+    i18n.add_translation("am", "Amount is %{amount}")
+    print(i18n.t("am"))
+    # output:
+    # WARNING:root:Missing placeholder 'amount' while translating 'am' to 'en' (in 'Amount is %{amount}')
+    # Amount is undefined
+
 ### Custom functions
 
 Add your custom functions and choose translation variants during runtime.

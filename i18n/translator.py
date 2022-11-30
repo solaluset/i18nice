@@ -25,7 +25,7 @@ class TranslationFormatter(Template, dict):
         self.clear()
         self.update(kwargs)
         self.locale = locale
-        if config.get('error_on_missing_placeholder') or config.get('on_missing_placeholder'):
+        if config.get('on_missing_placeholder'):
             return self.substitute(self)
         else:
             return self.safe_substitute(self)
@@ -54,7 +54,7 @@ class TranslationFormatter(Template, dict):
             on_missing = config.get('on_missing_placeholder')
             if not on_missing or on_missing == "error":
                 raise
-            return on_missing(key, self.translation_key, self.locale)
+            return on_missing(self.translation_key, self.locale, self.template, key)
 
 
 def t(key, **kwargs):
@@ -70,7 +70,7 @@ def t(key, **kwargs):
     if 'default' in kwargs:
         return kwargs['default']
     on_missing = config.get('on_missing_translation')
-    if config.get('error_on_missing_translation') or on_missing == "error":
+    if on_missing == "error":
         raise KeyError('key {0} not found'.format(key))
     elif on_missing:
         return on_missing(key, locale, **kwargs)
@@ -82,11 +82,11 @@ def translate(key, **kwargs):
     locale = kwargs.pop('locale', config.get('locale'))
     translation = translations.get(key, locale=locale)
     if 'count' in kwargs:
-        translation = pluralize(key, translation, kwargs['count'])
+        translation = pluralize(key, locale, translation, kwargs['count'])
     return TranslationFormatter(key, translation).format(locale, **kwargs)
 
 
-def pluralize(key, translation, count):
+def pluralize(key, locale, translation, count):
     return_value = key
     try:
         if type(translation) != dict:
@@ -110,9 +110,9 @@ def pluralize(key, translation, count):
             raise KeyError('"many" not defined for key {0}'.format(key))
     except KeyError as e:
         on_missing = config.get('on_missing_plural')
-        if config.get('error_on_missing_plural') or on_missing == "error":
+        if on_missing == "error":
             raise e
         elif on_missing:
-            return on_missing(key, translation, count)
+            return on_missing(key, locale, translation, count)
         else:
             return return_value

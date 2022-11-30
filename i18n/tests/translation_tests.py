@@ -51,9 +51,6 @@ class TestTranslationFormat(unittest.TestCase):
         translations.add('foo.comma_separated_args', '%{f(1,2,3)}')
 
     def setUp(self):
-        config.set('error_on_missing_translation', False)
-        config.set('error_on_missing_placeholder', False)
-        config.set('error_on_missing_plural', False)
         config.set('on_missing_translation', None)
         config.set('on_missing_placeholder', None)
         config.set('on_missing_plural', None)
@@ -68,11 +65,6 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo.inexistent'), 'foo.inexistent')
 
     def test_missing_translation_error(self):
-        config.set('error_on_missing_translation', True)
-        with self.assertRaises(KeyError):
-            t('foo.inexistent')
-
-    def test_new_missing_translation_error(self):
         config.set('on_missing_translation', 'error')
         with self.assertRaises(KeyError):
             t('foo.inexistent')
@@ -106,17 +98,12 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo.hi'), 'Hello %{name} !')
 
     def test_missing_placeholder_error(self):
-        config.set('error_on_missing_placeholder', True)
-        with self.assertRaises(KeyError):
-            t('foo.hi')
-
-    def test_new_missing_placeholder_error(self):
         config.set('on_missing_placeholder', 'error')
         with self.assertRaises(KeyError):
             t('foo.hi')
 
     def test_missing_placeholder_handler(self):
-        def handler(key, translation_key, locale):
+        def handler(translation_key, locale, text, key):
             if key == 'name':
                 return 'stranger'
 
@@ -135,18 +122,12 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo.plural', count=12), '12 mails')
 
     def test_bad_pluralization(self):
-        self.assertEqual(t('foo.normal_key', count=5), 'normal_value')
-        config.set('error_on_missing_plural', True)
-        with self.assertRaises(KeyError):
-            t('foo.bad_plural', count=0)
-
-    def test_new_pluralization_error(self):
         config.set('on_missing_plural', 'error')
         with self.assertRaises(KeyError):
             t('foo.bad_plural', count=0)
 
     def test_bad_pluralization_handler(self):
-        def handler(key, translation, count):
+        def handler(key, locale, translation, count):
             if isinstance(translation, dict):
                 return translation[sorted(translation.keys())[count]]
             return key
@@ -195,7 +176,7 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo.custom_func', count=2), '2 days')
 
     def test_inexistent_function(self):
-        config.set('error_on_missing_placeholder', True)
+        config.set('on_missing_placeholder', "error")
         with self.assertRaises(KeyError):
             t('foo.inexistent_func')
 
