@@ -235,6 +235,13 @@ en = {{"key": "value"}}
         self.assertEqual(config.get("locale"), "test")
         self.assertEqual(config.get("fallback"), "en")
 
+    def test_set_load_path(self):
+        self.assertIs(i18n.load_path, config.get("load_path"))
+        config.set("load_path", [])
+        self.assertIs(i18n.load_path, config.get("load_path"))
+        reload(config)
+        self.assertIs(i18n.load_path, config.get("load_path"))
+
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)

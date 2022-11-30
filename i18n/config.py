@@ -10,11 +10,19 @@ try:
 except ImportError:
     json_available = False
 
+# try to get existing path object
+# in case if config is being reloaded
+try:
+    from . import load_path
+    load_path.clear()
+except ImportError:
+    load_path = []
+
 settings = {
     'filename_format': '{namespace}.{locale}.{format}',
     'file_format': 'yml' if yaml_available else 'json' if json_available else 'py',
     'available_locales': ['en'],
-    'load_path': [],
+    'load_path': load_path,
     'locale': 'en',
     'fallback': 'en',
     'placeholder_delimiter': '%',
@@ -39,6 +47,10 @@ def set(key, value):
         TranslationFormatter.delimiter = value
         del TranslationFormatter.pattern
         TranslationFormatter.__init_subclass__()
+    elif key == 'load_path':
+        load_path.clear()
+        load_path.extend(value)
+        return
     settings[key] = value
 
 def get(key):
