@@ -108,10 +108,10 @@ def pluralize(key, locale, translation, count):
             return translation['many']
         else:
             raise KeyError('"many" not defined for key {0}'.format(key))
-    except KeyError as e:
+    except KeyError:
         on_missing = config.get('on_missing_plural')
         if on_missing == "error":
-            raise e
+            raise
         elif on_missing:
             return on_missing(key, locale, translation, count)
         else:

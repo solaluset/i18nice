@@ -10,5 +10,5 @@ class JsonLoader(Loader):
     def parse_file(self, file_content):
         try:
             return json.loads(file_content)
-        except ValueError as e:
-            raise I18nFileLoadError("invalid JSON: {0}".format(e.strerror))
+        except json.JSONDecodeError as e:
+            raise I18nFileLoadError("invalid JSON: {0}".format(e.args[0])) from e

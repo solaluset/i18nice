@@ -24,7 +24,7 @@ class Loader(object):
             with io.open(filename, 'r', encoding=config.get('encoding')) as f:
                 return f.read()
         except IOError as e:
-            raise I18nFileLoadError("error loading file {0}: {1}".format(filename, e.strerror))
+            raise I18nFileLoadError("error loading file {0}: {1}".format(filename, e.strerror)) from e
 
     def parse_file(self, file_content):
         raise NotImplementedError("the method parse_file has not been implemented for class {0}".format(self.__class__.name__))

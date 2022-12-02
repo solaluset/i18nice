@@ -62,6 +62,8 @@ class TestFileLoader(unittest.TestCase):
         resource_loader.init_json_loader()
         with self.assertRaisesRegexp(I18nFileLoadError, "error getting data .*"):
             resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"), "foo")
+        with self.assertRaisesRegexp(I18nFileLoadError, "invalid JSON: .*"):
+            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.json"), "foo")
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_yaml_file(self):
@@ -69,6 +71,12 @@ class TestFileLoader(unittest.TestCase):
         data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.yml"), "settings")
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
+
+    @unittest.skipUnless(yaml_available, "yaml library not available")
+    def test_load_broken_yaml(self):
+        resource_loader.init_yaml_loader()
+        with self.assertRaisesRegexp(I18nFileLoadError, "invalid YAML: .*"):
+            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.yml"), "foo")
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_load_json_file(self):
