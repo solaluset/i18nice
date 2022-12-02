@@ -107,7 +107,12 @@ en = {{"key": "value"}}
             ''')
             fd.close()
             self.assertEqual(t('memoize.key'), 'value')
+            # change relative path to test if file path is stored properly
+            orig_wd = os.getcwd()
+            os.chdir(tmp_dir_name)
+            i18n.load_path[0] = "."
             self.assertEqual(t('memoize.key2'), 'memoize.key2')
+            os.chdir(orig_wd)
 
 
     @unittest.skipUnless(json_available, "json library not available")
@@ -138,6 +143,11 @@ en = {{"key": "value"}}
         for expected, test_val in tests.items():
             namespace = resource_loader.get_namespace_from_filepath(test_val)
             self.assertEqual(expected, namespace)
+
+    def test_get_namespace_from_filepath_strange_format(self):
+        config.set("filename_format", "{locale}.{namespace}.{format}")
+        namespace = resource_loader.get_namespace_from_filepath("x.y.z")
+        self.assertEqual(namespace, "y")
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_translation_file(self):
@@ -180,6 +190,15 @@ en = {{"key": "value"}}
         config.set("filename_format", "{locale}.{format}")
         resource_loader.search_translation("foo")
         self.assertTrue(translations.has("foo"))
+
+    @unittest.skipUnless(json_available, "json library not available")
+    def test_search_translation_path_as_ns(self):
+        resource_loader.init_json_loader()
+        config.set("file_format", "json")
+        config.set("load_path", [RESOURCE_FOLDER])
+        config.set("filename_format", "{locale}.{format}")
+        resource_loader.search_translation("translations.foo")
+        self.assertTrue(translations.has("translations.foo"))
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_without_ns_nested_dict__two_levels_neting__default_locale(self):

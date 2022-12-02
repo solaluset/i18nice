@@ -1,5 +1,6 @@
 from .. import config
 import io
+import os.path
 
 
 class I18nFileLoadError(Exception):
@@ -35,6 +36,7 @@ class Loader(object):
         return data if root_data is None else data[root_data]
 
     def load_resource(self, filename, root_data):
+        filename = os.path.abspath(filename)
         if filename in self.loaded_files:
             return {}
         file_content = self.load_file(filename)
