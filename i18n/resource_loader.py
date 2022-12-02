@@ -78,6 +78,11 @@ def load_translation_file(filename, base_directory, locale=None):
     load_translation_dic(translations_dic, namespace, locale)
 
 
+def reload_everything():
+    translations.clear()
+    Loader.loaded_files.clear()
+
+
 def load_translation_dic(dic, namespace, locale):
     if namespace:
         namespace += config.get('namespace_delimiter')

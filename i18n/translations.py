@@ -19,3 +19,10 @@ def get(key, locale=None):
     if locale is None:
         locale = config.get('locale')
     return container[locale][key]
+
+
+def clear(locale=None):
+    if locale is None:
+        container.clear()
+    elif locale in container:
+        container[locale].clear()

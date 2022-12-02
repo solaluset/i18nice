@@ -42,6 +42,8 @@ If both `yaml` and `json` modules available and you want to use JSON to store tr
 
 Setting the configuration value `enable_memoization` will disable reloading of files every time when searching for missing translation.
 When translations are loaded, they're always stored in memory, hence it does not affect how existing translations are accessed.
+
+If you want to reload all translations, you can use `i18n.reload_everything()`.
  
 ### Namespaces
 

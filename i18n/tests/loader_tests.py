@@ -127,6 +127,23 @@ en = {{"key": "value"}}
             self.assertEqual(t('memoize.key2'), 'memoize.key2')
             os.chdir(orig_wd)
 
+    @unittest.skipUnless(json_available, "json library not available")
+    def test_reload_everything(self):
+        config.set("skip_locale_root_data", True)
+        config.set("file_format", "json")
+        resource_loader.init_json_loader()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            i18n.load_path.append(tmp_dir)
+            filename = os.path.join(tmp_dir, "test.en.json")
+            with open(filename, "w") as f:
+                f.write('{"a": "b"}')
+            self.assertEqual(t("test.a"), "b")
+
+            # rewrite file and reload
+            with open(filename, "w") as f:
+                f.write('{"a": "c"}')
+            i18n.reload_everything()
+            self.assertEqual(t("test.a"), "c")
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_load_file_with_strange_encoding(self):
