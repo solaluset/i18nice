@@ -1,6 +1,6 @@
 import yaml
 
-from .loader import Loader, I18nFileLoadError
+from . import Loader, I18nFileLoadError
 
 class YamlLoader(Loader):
     """class to load yaml files"""

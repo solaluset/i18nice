@@ -3,7 +3,7 @@ import sys
 from importlib import util
 
 from .. import config
-from .loader import Loader, I18nFileLoadError
+from . import Loader, I18nFileLoadError
 
 
 class PythonLoader(Loader):

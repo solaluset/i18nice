@@ -14,6 +14,7 @@ from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
 from i18n import translations
+from i18n.loaders import Loader
 
 try:
     reload  # Python 2.7
@@ -45,6 +46,10 @@ class TestFileLoader(unittest.TestCase):
             pass
         with self.assertRaises(ValueError):
             resource_loader.register_loader(WrongLoader, [])
+
+    def test_loader_for_two_exts_is_same_obj(self):
+        resource_loader.register_loader(Loader, ["x", "y"])
+        self.assertIs(resource_loader.loaders["x"], resource_loader.loaders["y"])
 
     def test_register_python_loader(self):
         resource_loader.init_python_loader()
