@@ -49,6 +49,7 @@ class TestTranslationFormat(unittest.TestCase):
         translations.add('foo.custom_func', '%{count} day%{p(|s)}')
         translations.add('foo.inexistent_func', '%{a(b|c)}')
         translations.add('foo.comma_separated_args', '%{f(1,2,3)}')
+        custom_functions.add_function('p', lambda **kw: kw['count'] != 1)
 
     def setUp(self):
         config.set('on_missing_translation', None)
@@ -90,6 +91,14 @@ class TestTranslationFormat(unittest.TestCase):
     def test_fallback_from_resource(self):
         config.set('fallback', 'ja')
         self.assertEqual(t('foo.fallback_key'), 'フォールバック')
+
+    def test_clear_one_locale(self):
+        config.set("locale", "testloc")
+        translations.add("test", "123")
+        translations.add("test", "321", config.get("fallback"))
+        self.assertEqual(t("test"), "123")
+        translations.clear("testloc")
+        self.assertEqual(t("test"), "321")
 
     def test_basic_placeholder(self):
         self.assertEqual(t('foo.hi', name='Bob'), 'Hello Bob !')
@@ -139,6 +148,7 @@ class TestTranslationFormat(unittest.TestCase):
     def test_default(self):
         self.assertEqual(t('inexistent_key', default='foo'), 'foo')
 
+    @unittest.skipUnless(config.json_available, "json library is not available")
     def test_skip_locale_root_data(self):
         config.set('filename_format', '{locale}.{format}')
         config.set('file_format', 'json')
@@ -148,6 +158,7 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo'), 'Lorry')
         config.set('skip_locale_root_data', False)
 
+    @unittest.skipUnless(config.json_available, "json library is not available")
     def test_skip_locale_root_data_nested_json_dict__default_locale(self):
         config.set("file_format", "json")
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
@@ -157,6 +168,7 @@ class TestTranslationFormat(unittest.TestCase):
         resource_loader.init_json_loader()
         self.assertEqual(t('COMMON.START'), 'Start')
 
+    @unittest.skipUnless(config.json_available, "json library is not available")
     def test_skip_locale_root_data_nested_json_dict__other_locale(self):
         config.set("file_format", "json")
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
@@ -171,7 +183,6 @@ class TestTranslationFormat(unittest.TestCase):
             config.set("asdafs", True)
 
     def test_custom_function(self):
-        custom_functions.add_function('p', lambda **kw: kw['count'] != 1, config.get('locale'))
         self.assertEqual(t('foo.custom_func', count=1), '1 day')
         self.assertEqual(t('foo.custom_func', count=2), '2 days')
 
@@ -180,10 +191,11 @@ class TestTranslationFormat(unittest.TestCase):
         with self.assertRaises(KeyError):
             t('foo.inexistent_func')
 
-    def test_bad_func(self):
+    def test_bad_locale_func(self):
         custom_functions.add_function('p', lambda **kw: kw, config.get('locale'))
         with self.assertRaises(ValueError):
             t('foo.custom_func')
+        custom_functions.locales_functions.clear()
 
     def test_argument_delimiter_change(self):
         config.set('argument_delimiter', ',')
