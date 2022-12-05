@@ -93,9 +93,7 @@ def load_translation_dic(dic, namespace, locale):
             translations.add(namespace + key, value, locale)
 
 
-def load_directory(directory, locale=None):
-    if locale is None:
-        locale = config.get('locale')
+def load_directory(directory, locale):
     for f in os.listdir(directory):
         path = os.path.join(directory, f)
         if os.path.isfile(path) and path.endswith(config.get('file_format')):
@@ -108,8 +106,6 @@ def search_translation(key, locale=None):
     if locale is None:
         locale = config.get('locale')
     splitted_key = key.split(config.get('namespace_delimiter'))
-    if not splitted_key:
-        return
     namespace = splitted_key[:-1]
     if not namespace and '{namespace}' not in config.get('filename_format'):
         for directory in config.get('load_path'):
@@ -119,9 +115,7 @@ def search_translation(key, locale=None):
             recursive_search_dir(namespace, '', directory, locale)
 
 
-def recursive_search_dir(splitted_namespace, directory, root_dir, locale=None):
-    if locale is None:
-        locale = config.get('locale')
+def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
     namespace = splitted_namespace[0] if splitted_namespace else ""
     seeked_file = config.get('filename_format').format(namespace=namespace, format=config.get('file_format'), locale=locale)
     dir_content = os.listdir(os.path.join(root_dir, directory))

@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import unittest
+from unittest import mock
 import os
 import os.path
 import tempfile
@@ -76,6 +77,13 @@ class TestFileLoader(unittest.TestCase):
         data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.yml"), "settings")
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
+
+    @unittest.skipUnless(yaml_available, "yaml library not available")
+    def test_load_old_yaml(self):
+        with mock.patch("yaml.FullLoader"):
+            import yaml
+            del yaml.FullLoader
+            self.test_load_yaml_file()
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_broken_yaml(self):

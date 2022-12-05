@@ -12,6 +12,6 @@ class YamlLoader(Loader):
             if hasattr(yaml, "FullLoader"):
                 return yaml.load(file_content, Loader=yaml.FullLoader)
             else:
-                return yaml.load(file_content)
+                return yaml.load(file_content, yaml.Loader)
         except yaml.YAMLError as e:
             raise I18nFileLoadError("invalid YAML: {0}".format(str(e))) from e

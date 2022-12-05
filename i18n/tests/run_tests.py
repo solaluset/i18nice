@@ -75,7 +75,11 @@ def test_without(modules):
         sys.exit(1)
 
 
-if __name__ == "__main__":
+def main():
     test_without(["json"])
     test_without(["yaml"])
     test_without([])
+
+
+if __name__ == "__main__":
+    main()
