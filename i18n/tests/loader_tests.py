@@ -39,7 +39,7 @@ class TestFileLoader(unittest.TestCase):
         config.set("encoding", "utf-8")
 
     def test_load_unavailable_extension(self):
-        with self.assertRaisesRegexp(I18nFileLoadError, "no loader .*"):
+        with self.assertRaisesRegex(I18nFileLoadError, "no loader .*"):
             resource_loader.load_resource("foo.bar", "baz")
 
     def test_register_wrong_loader(self):
@@ -54,21 +54,21 @@ class TestFileLoader(unittest.TestCase):
 
     def test_register_python_loader(self):
         resource_loader.init_python_loader()
-        with self.assertRaisesRegexp(I18nFileLoadError, "error loading file .*"):
+        with self.assertRaisesRegex(I18nFileLoadError, "error loading file .*"):
             resource_loader.load_resource("foo.py", "bar")
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_register_yaml_loader(self):
         resource_loader.init_yaml_loader()
-        with self.assertRaisesRegexp(I18nFileLoadError, "error loading file .*"):
+        with self.assertRaisesRegex(I18nFileLoadError, "error loading file .*"):
             resource_loader.load_resource("foo.yml", "bar")
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_load_wrong_json_file(self):
         resource_loader.init_json_loader()
-        with self.assertRaisesRegexp(I18nFileLoadError, "error getting data .*"):
+        with self.assertRaisesRegex(I18nFileLoadError, "error getting data .*"):
             resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"), "foo")
-        with self.assertRaisesRegexp(I18nFileLoadError, "invalid JSON: .*"):
+        with self.assertRaisesRegex(I18nFileLoadError, "invalid JSON: .*"):
             resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.json"), "foo")
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
@@ -88,7 +88,7 @@ class TestFileLoader(unittest.TestCase):
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_broken_yaml(self):
         resource_loader.init_yaml_loader()
-        with self.assertRaisesRegexp(I18nFileLoadError, "invalid YAML: .*"):
+        with self.assertRaisesRegex(I18nFileLoadError, "invalid YAML: .*"):
             resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.yml"), "foo")
 
     @unittest.skipUnless(json_available, "json library not available")
