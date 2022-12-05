@@ -101,9 +101,6 @@ def pluralize(key, locale, translation, count):
         elif count <= config.get('plural_few'):
             if 'few' in translation:
                 return translation['few']
-        # TODO: deprecate other
-        if 'other' in translation:
-            return translation['other']
         if 'many' in translation:
             return translation['many']
         else:

@@ -6,7 +6,7 @@ from . import translations
 
 loaders = {}
 
-PLURALS = ["zero", "one", "few", "many", "other"]
+PLURALS = ["zero", "one", "few", "many"]
 
 
 def register_loader(loader_class, supported_extensions):
