@@ -132,8 +132,10 @@ en = {{"key": "value"}}
             orig_wd = os.getcwd()
             os.chdir(tmp_dir_name)
             i18n.load_path[0] = "."
-            self.assertEqual(t('memoize.key2'), 'memoize.key2')
-            os.chdir(orig_wd)
+            try:
+                self.assertEqual(t('memoize.key2'), 'memoize.key2')
+            finally:
+                os.chdir(orig_wd)
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_reload_everything(self):
@@ -152,6 +154,14 @@ en = {{"key": "value"}}
                 f.write('{"a": "c"}')
             i18n.reload_everything()
             self.assertEqual(t("test.a"), "c")
+
+    def test_multilingual_caching(self):
+        resource_loader.init_python_loader()
+        config.set("enable_memoization", True)
+        config.set("filename_format", "{namespace}.{format}")
+        config.set("file_format", "py")
+        self.assertEqual(t("multilingual.hi"), "Hello")
+        self.assertEqual(t("multilingual.hi", locale="uk"), "Привіт")
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_load_file_with_strange_encoding(self):

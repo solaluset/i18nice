@@ -6,7 +6,7 @@ from . import translations
 
 loaders = {}
 
-PLURALS = ["zero", "one", "few", "many"]
+PLURALS = {"zero", "one", "few", "many"}
 
 
 def register_loader(loader_class, supported_extensions):
@@ -18,11 +18,11 @@ def register_loader(loader_class, supported_extensions):
         loaders[extension] = loader
 
 
-def load_resource(filename, root_data):
+def load_resource(filename, root_data, remember_content=False):
     extension = os.path.splitext(filename)[1][1:]
     if extension not in loaders:
         raise I18nFileLoadError("no loader available for extension {0}".format(extension))
-    return loaders[extension].load_resource(filename, root_data)
+    return loaders[extension].load_resource(filename, root_data, remember_content)
 
 
 def init_loaders():
@@ -73,7 +73,9 @@ def load_translation_file(filename, base_directory, locale=None):
         locale = config.get('locale')
     skip_locale_root_data = config.get('skip_locale_root_data')
     root_data = None if skip_locale_root_data else locale
-    translations_dic = load_resource(os.path.join(base_directory, filename), root_data)
+    # if the file isn't dedicated to one locale and may contain other `root_data`s
+    remember_content = "{locale}" not in config.get("filename_format") and root_data
+    translations_dic = load_resource(os.path.join(base_directory, filename), root_data, remember_content)
     namespace = get_namespace_from_filepath(filename)
     load_translation_dic(translations_dic, namespace, locale)
 
@@ -87,7 +89,7 @@ def load_translation_dic(dic, namespace, locale):
     if namespace:
         namespace += config.get('namespace_delimiter')
     for key, value in dic.items():
-        if type(value) == dict and len(set(PLURALS).intersection(value)) < 2:
+        if type(value) == dict and len(PLURALS.intersection(value)) < 2:
             load_translation_dic(value, namespace + key, locale)
         else:
             translations.add(namespace + key, value, locale)
