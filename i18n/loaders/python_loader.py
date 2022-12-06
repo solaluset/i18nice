@@ -19,15 +19,9 @@ class PythonLoader(Loader):
             spec = util.spec_from_file_location(module_name, filename)
             module = util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            return module
+            return vars(module)
         except Exception as e:
             raise I18nFileLoadError("error loading file {0}".format(filename)) from e
 
     def parse_file(self, file_content):
         return file_content
-
-    def check_data(self, data, root_data):
-        return hasattr(data, root_data)
-
-    def get_data(self, data, root_data):
-        return getattr(data, root_data)
