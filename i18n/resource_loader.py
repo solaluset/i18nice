@@ -6,7 +6,7 @@ from . import translations
 
 loaders = {}
 
-PLURALS = ["zero", "one", "few", "many"]
+PLURALS = {"zero", "one", "few", "many"}
 
 
 def register_loader(loader_class, supported_extensions):
@@ -89,7 +89,7 @@ def load_translation_dic(dic, namespace, locale):
     if namespace:
         namespace += config.get('namespace_delimiter')
     for key, value in dic.items():
-        if type(value) == dict and len(set(PLURALS).intersection(value)) < 2:
+        if type(value) == dict and len(PLURALS.intersection(value)) < 2:
             load_translation_dic(value, namespace + key, locale)
         else:
             translations.add(namespace + key, value, locale)
