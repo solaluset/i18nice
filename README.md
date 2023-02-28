@@ -38,6 +38,15 @@ in `/path/to/translations` folder, you simply need to add the folder to the tran
 Please note that YAML format is used as default file format if you have `yaml` module installed.
 If both `yaml` and `json` modules available and you want to use JSON to store translations, explicitly specify that: `i18n.set('file_format', 'json')`
 
+**!WARNING!**
+`yaml.FullLoader` is no longer used by default.
+If you need full yaml functionalities, override it with a custom loader:
+
+    class MyLoader(i18n.loaders.YamlLoader):
+        loader = yaml.FullLoader
+
+    i18n.register_loader(MyLoader, ["yml", "yaml"])
+
 ### Memoization
 
 Setting the configuration value `enable_memoization` will disable reloading of files every time when searching for missing translation.

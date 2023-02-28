@@ -1,3 +1,4 @@
 settings:
   foo: bar
   baz: qux
+  maybe_bool: yes

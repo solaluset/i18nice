@@ -79,11 +79,21 @@ class TestFileLoader(unittest.TestCase):
         self.assertEqual("bar", data["foo"])
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
-    def test_load_old_yaml(self):
-        with mock.patch("yaml.FullLoader"):
-            import yaml
-            del yaml.FullLoader
-            self.test_load_yaml_file()
+    def test_override_yaml_loader(self):
+        import yaml
+
+        class MyLoader(i18n.loaders.YamlLoader):
+            loader = yaml.FullLoader
+
+        file = os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.yml")
+
+        resource_loader.init_yaml_loader()
+        data = resource_loader.load_resource(file, "settings")
+        self.assertIsInstance(data["maybe_bool"], str)
+
+        i18n.register_loader(MyLoader, ["yml", "yaml"])
+        data = resource_loader.load_resource(file, "settings")
+        self.assertIsInstance(data["maybe_bool"], bool)
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_broken_yaml(self):
