@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='i18nice',
-    version='0.6.1',
+    version='0.6.2',
     description='Translation library for Python',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
