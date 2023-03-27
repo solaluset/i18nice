@@ -22,7 +22,7 @@ jobs:
     - name: Upload binaries to release
       run: >
         pip install twine==4.0.2
-        && python -m twine upload
+        && python -m twine upload dist/*
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
