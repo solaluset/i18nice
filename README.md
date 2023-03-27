@@ -1,4 +1,4 @@
-# python-i18n [![tests](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutyi-4el/python-i18n/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/Krutyi-4el/python-i18n/badge.svg)](https://coveralls.io/github/Krutyi-4el/python-i18n)
+# i18nice [![tests](https://github.com/Krutyi-4el/i18nice/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutyi-4el/i18nice/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/Krutyi-4el/i18nice/badge.svg)](https://coveralls.io/github/Krutyi-4el/i18nice)
 
 
 This library provides i18n functionality for Python 3 out of the box. The usage is mostly based on Rails i18n library.
@@ -7,11 +7,11 @@ This library provides i18n functionality for Python 3 out of the box. The usage 
 
 Just run
 
-    pip install https://github.com/Krutyi-4el/python-i18n/archive/master.zip
+    pip install https://github.com/Krutyi-4el/i18nice/archive/master.zip
 
 If you want to use YAML to store your translations, use
 
-    pip install https://github.com/Krutyi-4el/python-i18n/archive/master.zip#egg=python-i18n[YAML]
+    pip install https://github.com/Krutyi-4el/i18nice/archive/master.zip#egg=i18nice[YAML]
 
 ## Usage
 ### Basic usage
@@ -106,7 +106,7 @@ Sometimes i18n structure file came from another project or not contains root ele
     }
 
 However we would like to use this i18n .json file in our Python sub-project or micro service as base file for translations.
-`python-i18n` has special configuration that is skipping locale eg. `en` root data element from the file.
+`i18nice` has special configuration that is skipping locale eg. `en` root data element from the file.
 
     i18n.set('skip_locale_root_data', True)
 
