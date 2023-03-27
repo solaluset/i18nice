@@ -7,11 +7,11 @@ This library provides i18n functionality for Python 3 out of the box. The usage 
 
 Just run
 
-    pip install https://github.com/Krutyi-4el/i18nice/archive/master.zip
+    pip install i18nice
 
 If you want to use YAML to store your translations, use
 
-    pip install https://github.com/Krutyi-4el/i18nice/archive/master.zip#egg=i18nice[YAML]
+    pip install i18nice[YAML]
 
 ## Usage
 ### Basic usage
