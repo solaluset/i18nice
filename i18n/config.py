@@ -48,9 +48,9 @@ def set(key, value):
     settings[key] = value
 
     if key == 'placeholder_delimiter':
-        from .translator import TranslationFormatter
+        from . import formatters
 
-        TranslationFormatter.reload()
+        formatters.reload()
 
 def get(key):
     return settings[key]

@@ -4,22 +4,35 @@ from . import config
 from .custom_functions import get_function
 
 
-class TranslationFormatter(Template, dict):
+_formatters = set()
+
+def reload():
+    for f in _formatters:
+        f.reload()
+
+
+class BaseFormatter(Template):
+    def __init_subclass__(cls):
+        _formatters.add(cls)
+        super().__init_subclass__()
+
     @classmethod
     def reload(cls):
         cls.delimiter = config.get("placeholder_delimiter")
-        cls.idpattern = r"""
-            \w+                      # name
-            (
-                \(
-                    [^\(\){}]*       # arguments
-                \)
-            )?
-        """
-
         # hacky trick to reload formatter's configuration
         del cls.pattern
         cls.__init_subclass__()
+
+
+class TranslationFormatter(BaseFormatter, dict):
+    idpattern = r"""
+        \w+                      # name
+        (
+            \(
+                [^\(\){}]*       # arguments
+            \)
+        )?
+    """
 
     def __init__(self, translation_key, template):
         super(TranslationFormatter, self).__init__(template)
@@ -63,4 +76,4 @@ class TranslationFormatter(Template, dict):
             return on_missing(self.translation_key, self.locale, self.template, key)
 
 
-TranslationFormatter.reload()
+reload()
