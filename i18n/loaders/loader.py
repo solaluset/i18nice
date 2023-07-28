@@ -1,14 +1,8 @@
-from .. import config
 import io
 import os.path
 
-
-class I18nFileLoadError(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return str(self.value)
+from .. import config
+from ..errors import I18nFileLoadError
 
 
 class Loader(object):
