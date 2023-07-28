@@ -1,6 +1,8 @@
+from re import escape
 from string import Template
 
-from . import config
+from . import config, translations
+from .errors import I18nInvalidStaticRef
 from .custom_functions import get_function
 
 
@@ -74,6 +76,50 @@ class TranslationFormatter(BaseFormatter, dict):
             if not on_missing or on_missing == "error":
                 raise
             return on_missing(self.translation_key, self.locale, self.template, key)
+
+
+class StaticFormatter(BaseFormatter):
+    @classmethod
+    def reload(cls):
+        cls.idpattern = r"""
+            ({})
+            |
+            ({}\w+)+
+        """.format(
+            TranslationFormatter.idpattern,
+            escape(config.get("namespace_delimiter")),
+        )
+        super().reload()
+
+    def __init__(self, locale, translation_key, template):
+        super().__init__(template)
+        self.locale = locale
+        self.path = translation_key.split(config.get("namespace_delimiter"))
+
+    def format(self):
+        result = self.safe_substitute(self)
+        # keep substituting in case of nested references
+        # python will throw an exception if there's a recursive reference
+        if result != self.template:
+            self.template = result
+            return self.format()
+        return result
+
+    def __getitem__(self, key: str):
+        delim = config.get("namespace_delimiter")
+        full_key = key.lstrip(delim)
+        if full_key == key:
+            # not a static reference, skip
+            raise KeyError()
+        for i in range(1, len(self.path) + 1):
+            try:
+                return translations.get(full_key, self.locale)
+            except KeyError:
+                full_key = delim.join(self.path[:i]) + key
+        raise I18nInvalidStaticRef(
+            "no value found for static reference {!r} (in {!r})"
+            .format(key, delim.join(self.path)),
+        )
 
 
 reload()

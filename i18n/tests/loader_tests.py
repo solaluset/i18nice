@@ -320,6 +320,28 @@ en = {{"key": "value"}}
         self.assertIs(i18n.load_path, config.get("load_path"))
 
 
+    @unittest.skipUnless(json_available, "json library not available")
+    def test_static_references(self):
+        resource_loader.init_json_loader()
+        config.set("file_format", "json")
+        config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations")])
+        config.set("filename_format", "{namespace}.{format}")
+        config.set('skip_locale_root_data', True)
+        config.set("locale", "en")
+
+        self.assertEqual(t("static_ref.welcome"), "Welcome to Programname")
+        self.assertEqual(t("static_ref.cool.best"), "Programname is the best program ever!")
+        self.assertEqual(t("static_ref.cool.downloads", count=0), "Programname was never downloaded :(")
+        self.assertEqual(t("static_ref.cool.downloads", count=10), "Programname was downloaded 10 times!")
+
+        with self.assertRaises(RecursionError):
+            t("static_ref2.foo")
+
+        config.set("namespace_delimiter", "/")
+        with self.assertRaises(i18n.I18nInvalidStaticRef):
+            t("static_ref2/x")
+
+
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)
     unittest.TextTestRunner(verbosity=2).run(suite)

@@ -1,0 +1,14 @@
+{
+  "pname": "Programname",
+  "welcome": "Welcome to %{.pname}",
+  "ver": "ver",
+  "when": "e%{.ver}",
+  "cool": {
+    "best": "%{.pname} is the best program %{.when}!",
+    "when": "n%{.when}",
+    "downloads": {
+        "zero": "%{.pname} was %{.cool.when} downloaded :(",
+        "many": "%{.pname} was downloaded %{count} times!"
+    }
+  }
+}

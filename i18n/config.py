@@ -47,7 +47,7 @@ def set(key, value):
 
     settings[key] = value
 
-    if key == 'placeholder_delimiter':
+    if key in ('placeholder_delimiter', 'namespace_delimiter'):
         from . import formatters
 
         formatters.reload()

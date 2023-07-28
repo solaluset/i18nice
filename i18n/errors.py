@@ -8,3 +8,7 @@ class I18nException(Exception):
 
 class I18nFileLoadError(I18nException):
     pass
+
+
+class I18nInvalidStaticRef(I18nException):
+    pass
