@@ -7,15 +7,21 @@ from .custom_functions import get_function
 
 
 class TranslationFormatter(Template, dict):
-    delimiter = config.get('placeholder_delimiter')
-    idpattern = r"""
-        \w+                      # name
-        (
-            \(
-                [^\(\){}]*       # arguments
-            \)
-        )?
-    """
+    @classmethod
+    def reload(cls):
+        cls.delimiter = config.get('placeholder_delimiter')
+        cls.idpattern = r"""
+            \w+                      # name
+            (
+                \(
+                    [^\(\){}]*       # arguments
+                \)
+            )?
+        """
+
+        # hacky trick to reload formatter's configuration
+        del cls.pattern
+        cls.__init_subclass__()
 
     def __init__(self, translation_key, template):
         super(TranslationFormatter, self).__init__(template)
@@ -55,6 +61,8 @@ class TranslationFormatter(Template, dict):
             if not on_missing or on_missing == "error":
                 raise
             return on_missing(self.translation_key, self.locale, self.template, key)
+
+TranslationFormatter.reload()
 
 
 def t(key, **kwargs):
