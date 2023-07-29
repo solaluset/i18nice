@@ -333,6 +333,7 @@ en = {{"key": "value"}}
         self.assertEqual(t("static_ref.cool.best"), "Programname is the best program ever!")
         self.assertEqual(t("static_ref.cool.downloads", count=0), "Programname was never downloaded :(")
         self.assertEqual(t("static_ref.cool.downloads", count=10), "Programname was downloaded 10 times!")
+        self.assertEqual(t("static_ref.otherFile"), "FooBar")
 
         with self.assertRaises(RecursionError):
             t("static_ref2.foo")

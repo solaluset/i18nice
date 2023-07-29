@@ -10,5 +10,6 @@
         "zero": "%{.pname} was %{.cool.when} downloaded :(",
         "many": "%{.pname} was downloaded %{count} times!"
     }
-  }
+  },
+  "otherFile": "%{.en.en.foo}"
 }

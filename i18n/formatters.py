@@ -95,7 +95,16 @@ class StaticFormatter(Template):
                 return translations.get(full_key, self.locale)
             except KeyError:
                 full_key = delim.join(self.path[:i]) + key
-        raise I18nInvalidStaticRef(
-            "no value found for static reference {!r} (in {!r})"
-            .format(key, delim.join(self.path)),
-        )
+
+        # try to search in other files
+        from .resource_loader import search_translation
+
+        full_key = key.lstrip(delim)
+        search_translation(full_key, self.locale)
+        try:
+            return translations.get(full_key, self.locale)
+        except KeyError:
+            raise I18nInvalidStaticRef(
+                "no value found for static reference {!r} (in {!r})"
+                .format(key, delim.join(self.path)),
+            )
