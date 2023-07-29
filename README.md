@@ -110,6 +110,30 @@ However we would like to use this i18n .json file in our Python sub-project or m
 
     i18n.set('skip_locale_root_data', True)
 
+### Static references
+
+Static references allow you to refer to other translation values. This can be useful to avoid repetition. To create a static reference, simply put a key prefixed with namespace delimiter to a placeholder. For example:
+
+    {
+      "en": {
+        "progname": "Program Name",
+        "welcome": "Welcome to %{.progname}!"
+      }
+    }
+
+Note that you don't need to specify the absolute key:
+
+    {
+      "en": {
+        "interface": {
+          "progname": "Program Name",
+          "ref": "%{.progname} and %{.interface.progname} refer to the same value"
+        }
+      }
+    }
+
+To be exact, keys are searched from top to bottom. For example, if you referred to `.c.my_key` in `a.b.c.d`, the library will first check for `c.my_key`, then `a.c.my_key`, and finally find `a.b.c.my_key` if it's present. If not, it'll try to search `c.my_key` in other files and throw an exception if that also fails.
+
 ### Error handling
 
 There are three config options for handling different situations.

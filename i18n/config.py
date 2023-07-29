@@ -1,3 +1,5 @@
+from importlib import reload as _reload
+
 try:
     __import__("yaml")
     yaml_available = True
@@ -40,18 +42,17 @@ settings = {
 def set(key, value):
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
-    if key == 'placeholder_delimiter':
-        # hacky trick to reload formatter's configuration
-        from .translator import TranslationFormatter
-
-        TranslationFormatter.delimiter = value
-        del TranslationFormatter.pattern
-        TranslationFormatter.__init_subclass__()
     elif key == 'load_path':
         load_path.clear()
         load_path.extend(value)
         return
+
     settings[key] = value
+
+    if key in ('placeholder_delimiter', 'namespace_delimiter'):
+        from . import formatters
+
+        _reload(formatters)
 
 def get(key):
     return settings[key]

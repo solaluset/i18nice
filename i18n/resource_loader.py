@@ -2,7 +2,7 @@ import os.path
 
 from . import config
 from .loaders import Loader, I18nFileLoadError
-from . import translations
+from . import translations, formatters
 
 loaders = {}
 
@@ -77,7 +77,17 @@ def load_translation_file(filename, base_directory, locale=None):
     remember_content = "{locale}" not in config.get("filename_format") and root_data
     translations_dic = load_resource(os.path.join(base_directory, filename), root_data, remember_content)
     namespace = get_namespace_from_filepath(filename)
-    load_translation_dic(translations_dic, namespace, locale)
+    loaded = load_translation_dic(translations_dic, namespace, locale)
+    for key in loaded:
+        tr = translations.get(key, locale)
+        if isinstance(tr, dict):
+            tr = {
+                k: formatters.StaticFormatter(locale, key, v).format()
+                for k, v in tr.items()
+            }
+        else:
+            tr = formatters.StaticFormatter(locale, key, tr).format()
+        translations.add(key, tr, locale)
 
 
 def reload_everything():
@@ -86,13 +96,17 @@ def reload_everything():
 
 
 def load_translation_dic(dic, namespace, locale):
+    loaded = set()
     if namespace:
         namespace += config.get('namespace_delimiter')
     for key, value in dic.items():
+        full_key = namespace + key
         if type(value) == dict and len(PLURALS.intersection(value)) < 2:
-            load_translation_dic(value, namespace + key, locale)
+            loaded.update(load_translation_dic(value, full_key, locale))
         else:
-            translations.add(namespace + key, value, locale)
+            translations.add(full_key, value, locale)
+            loaded.add(full_key)
+    return loaded
 
 
 def load_directory(directory, locale):
