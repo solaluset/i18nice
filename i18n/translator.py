@@ -1,7 +1,6 @@
 from . import config
 from . import resource_loader
-from . import translations
-from .formatters import TranslationFormatter
+from . import translations, formatters
 
 
 def t(key, **kwargs):
@@ -30,7 +29,7 @@ def translate(key, **kwargs):
     translation = translations.get(key, locale=locale)
     if 'count' in kwargs:
         translation = pluralize(key, locale, translation, kwargs['count'])
-    return TranslationFormatter(key, translation).format(locale, **kwargs)
+    return formatters.TranslationFormatter(key, translation).format(locale, **kwargs)
 
 
 def pluralize(key, locale, translation, count):

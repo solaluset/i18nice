@@ -1,9 +1,8 @@
 import os.path
 
 from . import config
-from .formatters import StaticFormatter
 from .loaders import Loader, I18nFileLoadError
-from . import translations
+from . import translations, formatters
 
 loaders = {}
 
@@ -83,11 +82,11 @@ def load_translation_file(filename, base_directory, locale=None):
         tr = translations.get(key, locale)
         if isinstance(tr, dict):
             tr = {
-                k: StaticFormatter(locale, key, v).format()
+                k: formatters.StaticFormatter(locale, key, v).format()
                 for k, v in tr.items()
             }
         else:
-            tr = StaticFormatter(locale, key, tr).format()
+            tr = formatters.StaticFormatter(locale, key, tr).format()
         translations.add(key, tr, locale)
 
 

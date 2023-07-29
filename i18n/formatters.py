@@ -6,27 +6,8 @@ from .errors import I18nInvalidStaticRef
 from .custom_functions import get_function
 
 
-_formatters = set()
-
-def reload():
-    for f in _formatters:
-        f.reload()
-
-
-class BaseFormatter(Template):
-    def __init_subclass__(cls):
-        _formatters.add(cls)
-        super().__init_subclass__()
-
-    @classmethod
-    def reload(cls):
-        cls.delimiter = config.get("placeholder_delimiter")
-        # hacky trick to reload formatter's configuration
-        del cls.pattern
-        cls.__init_subclass__()
-
-
-class TranslationFormatter(BaseFormatter, dict):
+class TranslationFormatter(Template, dict):
+    delimiter = config.get("placeholder_delimiter")
     idpattern = r"""
         \w+                      # name
         (
@@ -78,18 +59,16 @@ class TranslationFormatter(BaseFormatter, dict):
             return on_missing(self.translation_key, self.locale, self.template, key)
 
 
-class StaticFormatter(BaseFormatter):
-    @classmethod
-    def reload(cls):
-        cls.idpattern = r"""
-            ({})
-            |
-            ({}\w+)+
-        """.format(
-            TranslationFormatter.idpattern,
-            escape(config.get("namespace_delimiter")),
-        )
-        super().reload()
+class StaticFormatter(Template):
+    delimiter = config.get("placeholder_delimiter")
+    idpattern = r"""
+        ({})
+        |
+        ({}\w+)+
+    """.format(
+        TranslationFormatter.idpattern,
+        escape(config.get("namespace_delimiter")),
+    )
 
     def __init__(self, locale, translation_key, template):
         super().__init__(template)
@@ -120,6 +99,3 @@ class StaticFormatter(BaseFormatter):
             "no value found for static reference {!r} (in {!r})"
             .format(key, delim.join(self.path)),
         )
-
-
-reload()

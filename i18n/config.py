@@ -1,3 +1,5 @@
+from importlib import reload as _reload
+
 try:
     __import__("yaml")
     yaml_available = True
@@ -50,7 +52,7 @@ def set(key, value):
     if key in ('placeholder_delimiter', 'namespace_delimiter'):
         from . import formatters
 
-        formatters.reload()
+        _reload(formatters)
 
 def get(key):
     return settings[key]
