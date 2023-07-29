@@ -11,5 +11,6 @@
         "many": "%{.pname} was downloaded %{count} times!"
     }
   },
-  "otherFile": "%{.en.en.foo}"
+  "otherFile": "%{.en.en.foo}",
+  "asArgument": "%{f(%{.ver}|123)}"
 }

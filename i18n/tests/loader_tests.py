@@ -335,6 +335,9 @@ en = {{"key": "value"}}
         self.assertEqual(t("static_ref.cool.downloads", count=10), "Programname was downloaded 10 times!")
         self.assertEqual(t("static_ref.otherFile"), "FooBar")
 
+        i18n.add_function("f", lambda: 0)
+        self.assertEqual(t("static_ref.asArgument"), "ver")
+
         with self.assertRaises(RecursionError):
             t("static_ref2.foo")
 
