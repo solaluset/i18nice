@@ -78,16 +78,7 @@ def load_translation_file(filename, base_directory, locale=None):
     translations_dic = load_resource(os.path.join(base_directory, filename), root_data, remember_content)
     namespace = get_namespace_from_filepath(filename)
     loaded = load_translation_dic(translations_dic, namespace, locale)
-    for key in loaded:
-        tr = translations.get(key, locale)
-        if isinstance(tr, dict):
-            tr = {
-                k: formatters.StaticFormatter(locale, key, v).format()
-                for k, v in tr.items()
-            }
-        else:
-            tr = formatters.StaticFormatter(locale, key, tr).format()
-        translations.add(key, tr, locale)
+    formatters.expand_static_refs(loaded, locale)
 
 
 def reload_everything():

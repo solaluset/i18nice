@@ -14,7 +14,7 @@ from i18n.resource_loader import I18nFileLoadError
 from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
-from i18n import translations
+from i18n import translations, formatters
 from i18n.loaders import Loader
 
 try:
@@ -344,6 +344,15 @@ en = {{"key": "value"}}
         config.set("namespace_delimiter", "/")
         with self.assertRaises(i18n.I18nInvalidStaticRef):
             t("static_ref2/x")
+
+    def test_static_ref_expansion(self):
+        locale = config.get("locale")
+        i18n.add_translation("a.b", "%{.c}")
+        i18n.add_translation("a.c", "c")
+        i18n.add_translation("b", "%{.a.b}")
+
+        formatters.expand_static_refs(("b",), locale)
+        self.assertEqual(translations.get("b"), "c")
 
 
 if __name__ == "__main__":
