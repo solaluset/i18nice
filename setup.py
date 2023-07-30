@@ -8,6 +8,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Daniel Perez',
     author_email='tuvistavie@gmail.com',
+    maintainer="Krutyi 4el",
     url='https://github.com/Krutyi-4el/i18nice',
     download_url='https://github.com/Krutyi-4el/i18nice/archive/master.zip',
     license='MIT',
