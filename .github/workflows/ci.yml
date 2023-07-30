@@ -29,6 +29,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install requirements
         run: pip install -r requirements.txt
+      - name: Install package
+        run: pip install .
       - name: Run tests
         run: coverage run -m i18n.tests
       - name: Upload coverage
