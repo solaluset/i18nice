@@ -29,7 +29,7 @@ def translate(key, **kwargs):
     translation = translations.get(key, locale=locale)
     if 'count' in kwargs:
         translation = pluralize(key, locale, translation, kwargs['count'])
-    return formatters.TranslationFormatter(key, translation).format(locale, **kwargs)
+    return formatters.TranslationFormatter(key, locale, translation, kwargs).format()
 
 
 def pluralize(key, locale, translation, count):
