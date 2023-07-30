@@ -13,7 +13,6 @@ setup(
     download_url='https://github.com/Krutyi-4el/i18nice/archive/master.zip',
     license='MIT',
     packages=['i18n', 'i18n.loaders'],
-    include_package_data=True,
     zip_safe=True,
     test_suite='i18n.tests',
     extras_require={
