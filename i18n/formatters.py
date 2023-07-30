@@ -2,6 +2,7 @@ from re import escape
 from string import Template
 
 from . import config, translations
+from .translator import pluralize
 from .errors import I18nInvalidStaticRef
 from .custom_functions import get_function
 
@@ -53,6 +54,11 @@ class TranslationFormatter(Formatter):
             \)
         )?
     """
+
+    def format(self):
+        if 'count' in self.kwargs:
+            self.template = pluralize(self.translation_key, self.locale, self.template, self.kwargs['count'])
+        return super().format()
 
     def _format_str(self):
         if config.get("on_missing_placeholder"):
