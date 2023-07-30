@@ -24,12 +24,30 @@ def t(key, **kwargs):
         return key
 
 
+class LazyTranslationTuple(tuple):
+    def __new__(cls, translation_key, locale, value, kwargs):
+        obj = super().__new__(cls, value)
+        obj.translation_key = translation_key
+        obj.locale = locale
+        obj.kwargs = kwargs
+        return obj
+
+    def __getitem__(self, key):
+        return formatters.TranslationFormatter(
+            self.translation_key,
+            self.locale,
+            super().__getitem__(key),
+            self.kwargs,
+        ).format()
+
+
 def translate(key, **kwargs):
     locale = kwargs.pop('locale', config.get('locale'))
     translation = translations.get(key, locale=locale)
-    if 'count' in kwargs:
-        translation = pluralize(key, locale, translation, kwargs['count'])
-    return formatters.TranslationFormatter(key, locale, translation, kwargs).format()
+    if isinstance(translation, tuple):
+        return LazyTranslationTuple(key, locale, translation, kwargs)
+    else:
+        return formatters.TranslationFormatter(key, locale, translation, kwargs).format()
 
 
 def pluralize(key, locale, translation, count):

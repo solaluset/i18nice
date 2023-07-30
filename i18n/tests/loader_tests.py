@@ -214,6 +214,32 @@ en = {{"key": "value"}}
 
         self.assertTrue(translations.has("foo.normal_key"))
         self.assertTrue(translations.has("foo.parent.nested_key"))
+        self.assertIsInstance(translations.get("foo.welcome"), tuple)
+
+    @unittest.skipUnless(yaml_available, "yaml library not available")
+    def test_translation_list(self):
+        resource_loader.init_yaml_loader()
+        resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
+
+        default_format = formatters.TranslationFormatter.format
+        call_count = 0
+
+        def patched_format(obj):
+            nonlocal call_count
+
+            call_count += 1
+            return default_format(obj)
+
+        with mock.patch(
+            "i18n.formatters.TranslationFormatter.format",
+            side_effect=patched_format,
+            autospec=True
+        ):
+            self.assertEqual(t("foo.welcome", name="John")[0], "Hi John")
+            self.assertEqual(t("foo.welcome", name="Sam", count=2)[1], "Hello Sam and friends")
+            # 1 call + 2 recursive
+            self.assertEqual(t("foo.welcome", name="Sam", count=1)[:2], ("Hi Sam", "Hello Sam"))
+        self.assertEqual(call_count, 5)
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_plural(self):

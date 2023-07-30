@@ -7,3 +7,8 @@ en:
     one: You have a new mail.
     few: You only have %{count} mails.
     many: You have %{count} new mails.
+  welcome:
+    - Hi %{name}
+    - one: Hello %{name}
+      many: Hello %{name} and friends
+    - Welcome %{name}
