@@ -104,13 +104,7 @@ class StaticFormatter(Formatter):
         self.path = translation_key.split(config.get("namespace_delimiter"))
 
     def _format_str(self):
-        result = self.safe_substitute()
-        # keep substituting in case of nested references
-        # python will throw an exception if there's a recursive reference
-        if result != self.template:
-            self.template = result
-            return self._format_str()
-        return result
+        return self.safe_substitute()
 
     def __getitem__(self, key: str):
         delim = config.get("namespace_delimiter")
@@ -121,6 +115,9 @@ class StaticFormatter(Formatter):
 
         for i in range(1, len(self.path) + 1):
             try:
+                # keep expanding in case of nested references
+                # python will throw an exception if there's a recursive reference
+                expand_static_refs((full_key,), self.locale)
                 return translations.get(full_key, self.locale)
             except KeyError:
                 full_key = delim.join(self.path[:i]) + key
@@ -137,3 +134,10 @@ class StaticFormatter(Formatter):
                 "no value found for static reference {!r} (in {!r})"
                 .format(key, self.translation_key),
             )
+
+
+def expand_static_refs(keys, locale):
+    for key in keys:
+        tr = translations.get(key, locale)
+        tr = StaticFormatter(key, locale, tr).format()
+        translations.add(key, tr, locale)
