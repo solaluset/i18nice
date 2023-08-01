@@ -87,16 +87,16 @@ def reload_everything():
 
 
 def load_translation_dic(dic, namespace, locale):
-    loaded = set()
+    loaded = []
     if namespace:
         namespace += config.get('namespace_delimiter')
     for key, value in dic.items():
         full_key = namespace + key
         if type(value) == dict and len(PLURALS.intersection(value)) < 2:
-            loaded.update(load_translation_dic(value, full_key, locale))
+            loaded.extend(load_translation_dic(value, full_key, locale))
         else:
             translations.add(full_key, value, locale)
-            loaded.add(full_key)
+            loaded.append(full_key)
     return loaded
 
 
