@@ -4,10 +4,10 @@ from . import translations, formatters
 
 
 def t(key, **kwargs):
-    locale = kwargs.pop('locale', config.get('locale'))
-    if translations.has(key, locale):
+    locale = kwargs.pop('locale', None) or config.get('locale')
+    try:
         return translate(key, locale=locale, **kwargs)
-    else:
+    except KeyError:
         resource_loader.search_translation(key, locale)
         if translations.has(key, locale):
             return translate(key, locale=locale, **kwargs)
@@ -42,7 +42,7 @@ class LazyTranslationTuple(tuple):
 
 
 def translate(key, **kwargs):
-    locale = kwargs.pop('locale', config.get('locale'))
+    locale = kwargs.pop('locale', None) or config.get('locale')
     translation = translations.get(key, locale=locale)
     if isinstance(translation, tuple):
         return LazyTranslationTuple(key, locale, translation, kwargs)
