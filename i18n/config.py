@@ -20,6 +20,13 @@ try:
 except ImportError:
     load_path = []
 
+
+FILENAME_VARS = dict.fromkeys(
+    ("namespace", "locale", "format"),
+    r"\w+",
+)
+
+
 settings = {
     'filename_format': '{namespace}.{locale}.{format}',
     'file_format': 'yml' if yaml_available else 'json' if json_available else 'py',
@@ -46,6 +53,10 @@ def set(key, value):
         load_path.clear()
         load_path.extend(value)
         return
+    elif key == 'filename_format':
+        from .formatters import FilenameFormat
+
+        value = FilenameFormat(value, FILENAME_VARS)
 
     settings[key] = value
 
@@ -56,3 +67,7 @@ def set(key, value):
 
 def get(key):
     return settings[key]
+
+
+# initialize FilenameFormat
+set('filename_format', get('filename_format'))

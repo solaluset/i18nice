@@ -12,3 +12,7 @@ class I18nFileLoadError(I18nException):
 
 class I18nInvalidStaticRef(I18nException):
     pass
+
+
+class I18nInvalidFormat(I18nException):
+    pass

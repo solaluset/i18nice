@@ -1,9 +1,9 @@
-from re import escape
-from string import Template
+from re import compile, escape
+from string import Template, Formatter as _Fmt
 
 from . import config, translations
 from .translator import pluralize
-from .errors import I18nInvalidStaticRef
+from .errors import I18nInvalidStaticRef, I18nInvalidFormat
 from .custom_functions import get_function
 
 
@@ -147,3 +147,43 @@ def expand_static_refs(keys, locale):
         tr = translations.get(key, locale)
         tr = StaticFormatter(key, locale, tr).format()
         translations.add(key, tr, locale)
+
+
+class FilenameFormat(_Fmt):
+    def __init__(self, template: str, variables: dict):
+        super().__init__()
+        self.template = template
+        self.variables = variables
+        self.used_variables = set()
+        self.pattern = compile(super().format(template))
+
+    @property
+    def format(self):
+        return self.template.format
+
+    @property
+    def match(self):
+        return self.pattern.fullmatch
+
+    def __getattr__(self, name: str):
+        if name.startswith("has_"):
+            _, _, var_name = name.partition("_")
+            if var_name in self.variables:
+                return var_name in self.used_variables
+        raise AttributeError(f"{self.__class__.__name__!r} object has no attribute {name!r}")
+
+    def parse(self, s):
+        for text, field, spec, conversion in super().parse(s):
+            if spec or conversion:
+                raise I18nInvalidFormat("Can't apply format spec or conversion in filename format")
+            text = escape(text)
+            if field is not None:
+                try:
+                    text += f"(?P<{field}>{self.variables[field]})"
+                except KeyError as e:
+                    raise I18nInvalidFormat(f"Unknown placeholder in filename format: {e}") from e
+                self.used_variables.add(field)
+            yield text, None, None, None
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.template!r}, {self.variables!r})"
