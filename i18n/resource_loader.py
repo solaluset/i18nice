@@ -97,26 +97,13 @@ def load_translation_dic(dic, namespace, locale):
     return loaded
 
 
-def load_directory(directory, locale):
-    for f in os.listdir(directory):
-        path = os.path.join(directory, f)
-        if os.path.isfile(path) and path.endswith(config.get('file_format')):
-            if config.get('filename_format').has_locale and not locale in f:
-                continue
-            load_translation_file(f, directory, locale)
-
-
 def search_translation(key, locale=None):
     if locale is None:
         locale = config.get('locale')
     splitted_key = key.split(config.get('namespace_delimiter'))
     namespace = splitted_key[:-1]
-    if not namespace and not config.get('filename_format').has_namespace:
-        for directory in config.get('load_path'):
-            load_directory(directory, locale)
-    else:
-        for directory in config.get('load_path'):
-            recursive_search_dir(namespace, '', directory, locale)
+    for directory in config.get("load_path"):
+        recursive_search_dir(namespace, "", directory, locale)
 
 
 def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
@@ -127,3 +114,28 @@ def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
         load_translation_file(os.path.join(directory, seeked_file), root_dir, locale)
     elif namespace in dir_content:
         recursive_search_dir(splitted_namespace[1:], os.path.join(directory, namespace), root_dir, locale)
+
+
+def recursive_load_directory(root_dir, directory, locale):
+    dir_ = os.path.join(root_dir, directory)
+    for f in os.listdir(dir_):
+        path = os.path.join(dir_, f)
+        if os.path.isfile(path):
+            if os.path.splitext(path)[1][1:] == config.get("file_format"):
+                format_match = config.get("filename_format").match(f)
+                if (
+                    not format_match
+                    or format_match.groupdict().get("locale", locale) != locale
+                ):
+                    continue
+                load_translation_file(
+                    os.path.join(directory, f),
+                    root_dir,
+                    locale,
+                )
+        elif os.path.isdir(path):
+            recursive_load_directory(
+                root_dir,
+                os.path.join(directory, f),
+                locale,
+            )
