@@ -10,7 +10,7 @@ import tempfile
 
 import i18n
 from i18n import resource_loader
-from i18n.resource_loader import I18nFileLoadError
+from i18n.errors import I18nFileLoadError, I18nInvalidFormat
 from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
@@ -206,6 +206,23 @@ en = {{"key": "value"}}
         config.set("filename_format", "{locale}.{namespace}.{format}")
         namespace = resource_loader.get_namespace_from_filepath("x.y.z")
         self.assertEqual(namespace, "y")
+        config.set("filename_format", "{namespace}-{locale}.{format}")
+        namespace = resource_loader.get_namespace_from_filepath("x-y.z")
+        self.assertEqual(namespace, "x")
+
+    def test_invalid_filename_format(self):
+        with self.assertRaises(AttributeError):
+            config.get("filename_format").has_something
+        with self.assertRaisesRegex(I18nInvalidFormat, "Can't apply .+"):
+            config.set("filename_format", "{format!r}")
+        with self.assertRaisesRegex(I18nInvalidFormat, "Unknown placeholder .+ 'formatus'"):
+            config.set("filename_format", "{formatus}")
+
+    def test_formatters_misc(self):
+        with self.assertRaises(NotImplementedError):
+            formatters.Formatter("", "", "", {}).format()
+
+        self.assertEqual(repr(formatters.FilenameFormat("", {})), "FilenameFormat('', {})")
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_translation_file(self):
