@@ -3,7 +3,7 @@ from . import resource_loader
 from . import translations, formatters
 
 
-def t(key, **kwargs):
+def t(key: str, **kwargs) -> str:
     locale = kwargs.pop('locale', None) or config.get('locale')
     try:
         return translate(key, locale=locale, **kwargs)

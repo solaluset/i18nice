@@ -1,3 +1,4 @@
+from typing import Any
 from importlib import reload as _reload
 
 try:
@@ -46,7 +47,7 @@ settings = {
     'argument_delimiter': '|'
 }
 
-def set(key, value):
+def set(key: str, value: Any):
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
     elif key == 'load_path':
@@ -65,7 +66,7 @@ def set(key, value):
 
         _reload(formatters)
 
-def get(key):
+def get(key: str) -> Any:
     return settings[key]
 
 

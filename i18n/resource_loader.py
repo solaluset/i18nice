@@ -1,4 +1,5 @@
 import os.path
+from typing import Type, Iterable, Optional
 
 from . import config
 from .loaders import Loader, I18nFileLoadError
@@ -9,7 +10,7 @@ loaders = {}
 PLURALS = {"zero", "one", "few", "many"}
 
 
-def register_loader(loader_class, supported_extensions):
+def register_loader(loader_class: Type[Loader], supported_extensions: Iterable[str]):
     if not issubclass(loader_class, Loader):
         raise ValueError("loader class should be subclass of i18n.Loader")
 
@@ -48,7 +49,7 @@ def init_json_loader():
     register_loader(JsonLoader, ["json"])
 
 
-def load_config(filename):
+def load_config(filename: str):
     settings_data = load_resource(filename, "settings")
     for key, value in settings_data.items():
         config.set(key, value)
@@ -78,7 +79,7 @@ def load_translation_file(filename, base_directory, locale=None):
     formatters.expand_static_refs(loaded, locale)
 
 
-def load_everything(locale=None):
+def load_everything(locale: Optional[str] = None):
     for directory in config.get("load_path"):
         recursive_load_everything(directory, "", locale)
 

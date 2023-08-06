@@ -1,3 +1,5 @@
+from typing import List
+
 from . import resource_loader
 from .resource_loader import (
     Loader,
@@ -21,4 +23,4 @@ from .config import set, get
 
 resource_loader.init_loaders()
 
-load_path = config.get('load_path')
+load_path: List[str] = config.get("load_path")
