@@ -38,8 +38,16 @@ class TestFileLoader(unittest.TestCase):
     def test_register_wrong_loader(self):
         class WrongLoader(object):
             pass
+        class BadLoader(Loader):
+            pass
         with self.assertRaises(ValueError):
             resource_loader.register_loader(WrongLoader, [])
+        with self.assertRaises(NotImplementedError):
+            BadLoader().load_resource(
+                os.path.join(RESOURCE_FOLDER, "translations", "en.json"),
+                None,
+                False,
+            )
 
     def test_loader_for_two_exts_is_same_obj(self):
         resource_loader.register_loader(Loader, ["x", "y"])
