@@ -7,6 +7,7 @@ from unittest import mock
 import os
 import os.path
 import tempfile
+from importlib import reload
 
 import i18n
 from i18n import resource_loader
@@ -16,14 +17,6 @@ from i18n import config
 from i18n.config import json_available, yaml_available
 from i18n import translations, formatters
 from i18n.loaders import Loader
-
-try:
-    reload  # Python 2.7
-except NameError:
-    try:
-        from importlib import reload  # Python 3.4+
-    except ImportError:
-        from imp import reload  # Python 3.0 - 3.3
 
 
 RESOURCE_FOLDER = os.path.join(os.path.dirname(__file__), "resources")
