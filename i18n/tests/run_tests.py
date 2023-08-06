@@ -72,7 +72,7 @@ def test_without(modules):
     result = runner.run(suite())
     del sys.meta_path[0]
     if not result.wasSuccessful():
-        sys.exit(1)
+        sys.exit(1)  # pragma: no cover
 
 
 def main():
@@ -82,4 +82,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

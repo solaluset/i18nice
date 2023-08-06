@@ -423,8 +423,3 @@ en = {{"key": "value"}}
 
         formatters.expand_static_refs(("b",), locale)
         self.assertEqual(translations.get("b"), "c")
-
-
-if __name__ == "__main__":
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)
-    unittest.TextTestRunner(verbosity=2).run(suite)

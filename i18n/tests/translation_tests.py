@@ -133,7 +133,7 @@ class TestTranslationFormat(unittest.TestCase):
         def handler(key, locale, translation, count):
             if isinstance(translation, dict):
                 return translation[sorted(translation.keys())[count]]
-            return key
+            return key  # pragma: no cover
 
         config.set('on_missing_plural', handler)
         self.assertEqual(t('foo.bad_plural', count=0), 'foo elems')
