@@ -1,4 +1,5 @@
 import os.path
+from typing import Type, Iterable, Optional
 
 from . import config
 from .loaders import Loader, I18nFileLoadError
@@ -9,7 +10,7 @@ loaders = {}
 PLURALS = {"zero", "one", "few", "many"}
 
 
-def register_loader(loader_class, supported_extensions):
+def register_loader(loader_class: Type[Loader], supported_extensions: Iterable[str]):
     if not issubclass(loader_class, Loader):
         raise ValueError("loader class should be subclass of i18n.Loader")
 
@@ -48,7 +49,7 @@ def init_json_loader():
     register_loader(JsonLoader, ["json"])
 
 
-def load_config(filename):
+def load_config(filename: str):
     settings_data = load_resource(filename, "settings")
     for key, value in settings_data.items():
         config.set(key, value)
@@ -57,14 +58,11 @@ def load_config(filename):
 def get_namespace_from_filepath(filename):
     namespace = os.path.dirname(filename).strip(os.sep).replace(os.sep, config.get('namespace_delimiter'))
     format = config.get('filename_format')
-    if '{namespace}' in format:
-        try:
-            splitted_filename = os.path.basename(filename).split('.')
-            if namespace:
-                namespace += config.get('namespace_delimiter')
-            namespace += splitted_filename[format.split(".").index('{namespace}')]
-        except ValueError as e:
-            raise I18nFileLoadError("incorrect file format.") from e
+    if format.has_namespace:
+        filename_match = format.match(os.path.basename(filename))
+        if namespace:
+            namespace += config.get('namespace_delimiter')
+        namespace += filename_match.group("namespace")
     return namespace
 
 
@@ -74,39 +72,40 @@ def load_translation_file(filename, base_directory, locale=None):
     skip_locale_root_data = config.get('skip_locale_root_data')
     root_data = None if skip_locale_root_data else locale
     # if the file isn't dedicated to one locale and may contain other `root_data`s
-    remember_content = "{locale}" not in config.get("filename_format") and root_data
+    remember_content = not config.get("filename_format").has_locale and root_data
     translations_dic = load_resource(os.path.join(base_directory, filename), root_data, remember_content)
     namespace = get_namespace_from_filepath(filename)
     loaded = load_translation_dic(translations_dic, namespace, locale)
     formatters.expand_static_refs(loaded, locale)
 
 
-def reload_everything():
+def load_everything(locale: Optional[str] = None):
+    for directory in config.get("load_path"):
+        recursive_load_everything(directory, "", locale)
+
+
+def unload_everything():
     translations.clear()
     Loader.loaded_files.clear()
 
 
+def reload_everything():
+    unload_everything()
+    load_everything()
+
+
 def load_translation_dic(dic, namespace, locale):
-    loaded = set()
+    loaded = []
     if namespace:
         namespace += config.get('namespace_delimiter')
     for key, value in dic.items():
         full_key = namespace + key
         if type(value) == dict and len(PLURALS.intersection(value)) < 2:
-            loaded.update(load_translation_dic(value, full_key, locale))
+            loaded.extend(load_translation_dic(value, full_key, locale))
         else:
             translations.add(full_key, value, locale)
-            loaded.add(full_key)
+            loaded.append(full_key)
     return loaded
-
-
-def load_directory(directory, locale):
-    for f in os.listdir(directory):
-        path = os.path.join(directory, f)
-        if os.path.isfile(path) and path.endswith(config.get('file_format')):
-            if '{locale}' in config.get('filename_format') and not locale in f:
-                continue
-            load_translation_file(f, directory, locale)
 
 
 def search_translation(key, locale=None):
@@ -114,12 +113,8 @@ def search_translation(key, locale=None):
         locale = config.get('locale')
     splitted_key = key.split(config.get('namespace_delimiter'))
     namespace = splitted_key[:-1]
-    if not namespace and '{namespace}' not in config.get('filename_format'):
-        for directory in config.get('load_path'):
-            load_directory(directory, locale)
-    else:
-        for directory in config.get('load_path'):
-            recursive_search_dir(namespace, '', directory, locale)
+    for directory in config.get("load_path"):
+        recursive_search_dir(namespace, "", directory, locale)
 
 
 def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
@@ -130,3 +125,47 @@ def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
         load_translation_file(os.path.join(directory, seeked_file), root_dir, locale)
     elif namespace in dir_content:
         recursive_search_dir(splitted_namespace[1:], os.path.join(directory, namespace), root_dir, locale)
+
+
+def recursive_load_everything(root_dir, directory, locale):
+    dir_ = os.path.join(root_dir, directory)
+    for f in os.listdir(dir_):
+        path = os.path.join(dir_, f)
+        if os.path.isfile(path):
+            if os.path.splitext(path)[1][1:] != config.get("file_format"):
+                continue
+            format_match = config.get("filename_format").match(f)
+            if not format_match:
+                continue
+            requested_locale = locale
+            file_locale = format_match.groupdict().get("locale", requested_locale)
+            if requested_locale is None:
+                requested_locale = file_locale
+            if requested_locale is not None:
+                if requested_locale == file_locale:
+                    load_translation_file(
+                        os.path.join(directory, f),
+                        root_dir,
+                        requested_locale,
+                    )
+            elif not config.get("skip_locale_root_data"):
+                file_content = load_resource(path, None, False)
+                for l, dic in file_content.items():
+                    if isinstance(dic, dict):
+                        load_translation_dic(
+                            dic,
+                            get_namespace_from_filepath(os.path.join(directory, f)),
+                            l,
+                        )
+            else:
+                raise I18nFileLoadError(
+                    f"Cannot identify locales for {path!r}:"
+                    " filename_format doesn't include locale"
+                    " and skip_locale_root_data is set to True"
+                )
+        elif os.path.isdir(path):
+            recursive_load_everything(
+                root_dir,
+                os.path.join(directory, f),
+                locale,
+            )

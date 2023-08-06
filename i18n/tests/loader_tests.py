@@ -7,23 +7,16 @@ from unittest import mock
 import os
 import os.path
 import tempfile
+from importlib import reload
 
 import i18n
 from i18n import resource_loader
-from i18n.resource_loader import I18nFileLoadError
+from i18n.errors import I18nFileLoadError, I18nInvalidFormat
 from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
 from i18n import translations, formatters
 from i18n.loaders import Loader
-
-try:
-    reload  # Python 2.7
-except NameError:
-    try:
-        from importlib import reload  # Python 3.4+
-    except ImportError:
-        from imp import reload  # Python 3.0 - 3.3
 
 
 RESOURCE_FOLDER = os.path.join(os.path.dirname(__file__), "resources")
@@ -45,8 +38,16 @@ class TestFileLoader(unittest.TestCase):
     def test_register_wrong_loader(self):
         class WrongLoader(object):
             pass
+        class BadLoader(Loader):
+            pass
         with self.assertRaises(ValueError):
             resource_loader.register_loader(WrongLoader, [])
+        with self.assertRaises(NotImplementedError):
+            BadLoader().load_resource(
+                os.path.join(RESOURCE_FOLDER, "translations", "en.json"),
+                None,
+                False,
+            )
 
     def test_loader_for_two_exts_is_same_obj(self):
         resource_loader.register_loader(Loader, ["x", "y"])
@@ -148,6 +149,30 @@ en = {{"key": "value"}}
                 os.chdir(orig_wd)
 
     @unittest.skipUnless(json_available, "json library not available")
+    def test_load_everything(self):
+        i18n.load_path[0] = os.path.join(RESOURCE_FOLDER, "translations", "bar")
+        config.set("file_format", "json")
+        resource_loader.init_json_loader()
+
+        i18n.load_everything()
+        self.assertTrue(translations.has("a.abc.x", "en"))
+        i18n.unload_everything()
+        self.assertFalse(translations.has("a.abc.x", "en"))
+        i18n.load_everything("en")
+        self.assertTrue(translations.has("a.abc.x", "en"))
+        i18n.unload_everything()
+        config.set("filename_format", "{namespace}.{format}")
+        i18n.load_everything()
+        self.assertTrue(translations.has("d.d", "en"))
+        i18n.unload_everything()
+        config.set("skip_locale_root_data", True)
+        i18n.load_everything("en")
+        self.assertTrue(translations.has("d.en.d", "en"))
+        i18n.unload_everything()
+        with self.assertRaises(I18nFileLoadError):
+            i18n.load_everything()
+
+    @unittest.skipUnless(json_available, "json library not available")
     def test_reload_everything(self):
         config.set("skip_locale_root_data", True)
         config.set("file_format", "json")
@@ -158,6 +183,8 @@ en = {{"key": "value"}}
             with open(filename, "w") as f:
                 f.write('{"a": "b"}')
             self.assertEqual(t("test.a"), "b")
+            i18n.unload_everything()
+            self.assertEqual(translations.container, {})
 
             # rewrite file and reload
             with open(filename, "w") as f:
@@ -206,6 +233,23 @@ en = {{"key": "value"}}
         config.set("filename_format", "{locale}.{namespace}.{format}")
         namespace = resource_loader.get_namespace_from_filepath("x.y.z")
         self.assertEqual(namespace, "y")
+        config.set("filename_format", "{namespace}-{locale}.{format}")
+        namespace = resource_loader.get_namespace_from_filepath("x-y.z")
+        self.assertEqual(namespace, "x")
+
+    def test_invalid_filename_format(self):
+        with self.assertRaises(AttributeError):
+            config.get("filename_format").has_something
+        with self.assertRaisesRegex(I18nInvalidFormat, "Can't apply .+"):
+            config.set("filename_format", "{format!r}")
+        with self.assertRaisesRegex(I18nInvalidFormat, "Unknown placeholder .+ 'formatus'"):
+            config.set("filename_format", "{formatus}")
+
+    def test_formatters_misc(self):
+        with self.assertRaises(NotImplementedError):
+            formatters.Formatter("", "", "", {}).format()
+
+        self.assertEqual(repr(formatters.FilenameFormat("", {})), "FilenameFormat('', {})")
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_translation_file(self):
@@ -379,8 +423,3 @@ en = {{"key": "value"}}
 
         formatters.expand_static_refs(("b",), locale)
         self.assertEqual(translations.get("b"), "c")
-
-
-if __name__ == "__main__":
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestFileLoader)
-    unittest.TextTestRunner(verbosity=2).run(suite)

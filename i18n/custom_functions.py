@@ -1,11 +1,12 @@
 from collections import defaultdict
+from typing import Optional, Callable
 
 
 global_functions = {}
 locales_functions = defaultdict(dict)
 
 
-def add_function(name, func, locale=None):
+def add_function(name: str, func: Callable[..., int], locale: Optional[str] = None):
     if locale:
         locales_functions[locale][name] = func
     else:

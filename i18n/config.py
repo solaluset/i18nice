@@ -1,3 +1,4 @@
+from typing import Any
 from importlib import reload as _reload
 
 try:
@@ -20,6 +21,13 @@ try:
 except ImportError:
     load_path = []
 
+
+FILENAME_VARS = dict.fromkeys(
+    ("namespace", "locale", "format"),
+    r"\w+",
+)
+
+
 settings = {
     'filename_format': '{namespace}.{locale}.{format}',
     'file_format': 'yml' if yaml_available else 'json' if json_available else 'py',
@@ -39,13 +47,17 @@ settings = {
     'argument_delimiter': '|'
 }
 
-def set(key, value):
+def set(key: str, value: Any):
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
     elif key == 'load_path':
         load_path.clear()
         load_path.extend(value)
         return
+    elif key == 'filename_format':
+        from .formatters import FilenameFormat
+
+        value = FilenameFormat(value, FILENAME_VARS)
 
     settings[key] = value
 
@@ -54,5 +66,9 @@ def set(key, value):
 
         _reload(formatters)
 
-def get(key):
+def get(key: str) -> Any:
     return settings[key]
+
+
+# initialize FilenameFormat
+set('filename_format', get('filename_format'))

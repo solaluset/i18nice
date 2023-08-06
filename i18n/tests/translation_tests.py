@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import unittest
 import os
 import os.path
+from importlib import reload
 
 from i18n import resource_loader
 from i18n.translator import t
@@ -12,13 +13,6 @@ from i18n import translations
 from i18n import config
 from i18n import custom_functions
 
-try:
-    reload  # Python 2.7
-except NameError:
-    try:
-        from importlib import reload  # Python 3.4+
-    except ImportError:
-        from imp import reload  # Python 3.0 - 3.3
 
 RESOURCE_FOLDER = os.path.dirname(__file__) + os.sep + 'resources' + os.sep
 
@@ -139,7 +133,7 @@ class TestTranslationFormat(unittest.TestCase):
         def handler(key, locale, translation, count):
             if isinstance(translation, dict):
                 return translation[sorted(translation.keys())[count]]
-            return key
+            return key  # pragma: no cover
 
         config.set('on_missing_plural', handler)
         self.assertEqual(t('foo.bad_plural', count=0), 'foo elems')

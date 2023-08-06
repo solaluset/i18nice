@@ -1,9 +1,15 @@
+from typing import Optional, Union, List, Dict
+
 from . import config
 
 container = {}
 
 
-def add(key, value, locale=None):
+def add(
+    key: str,
+    value: Union[str, Dict[str, str], List[str], List[Dict[str, str]]],
+    locale: Optional[str] = None,
+):
     if locale is None:
         locale = config.get('locale')
     container.setdefault(locale, {})[key] = value
