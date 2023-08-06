@@ -148,6 +148,30 @@ en = {{"key": "value"}}
                 os.chdir(orig_wd)
 
     @unittest.skipUnless(json_available, "json library not available")
+    def test_load_everything(self):
+        i18n.load_path[0] = os.path.join(RESOURCE_FOLDER, "translations", "bar")
+        config.set("file_format", "json")
+        resource_loader.init_json_loader()
+
+        i18n.load_everything()
+        self.assertTrue(translations.has("a.abc.x", "en"))
+        i18n.unload_everything()
+        self.assertFalse(translations.has("a.abc.x", "en"))
+        i18n.load_everything("en")
+        self.assertTrue(translations.has("a.abc.x", "en"))
+        i18n.unload_everything()
+        config.set("filename_format", "{namespace}.{format}")
+        i18n.load_everything()
+        self.assertTrue(translations.has("d.d", "en"))
+        i18n.unload_everything()
+        config.set("skip_locale_root_data", True)
+        i18n.load_everything("en")
+        self.assertTrue(translations.has("d.en.d", "en"))
+        i18n.unload_everything()
+        with self.assertRaises(I18nFileLoadError):
+            i18n.load_everything()
+
+    @unittest.skipUnless(json_available, "json library not available")
     def test_reload_everything(self):
         config.set("skip_locale_root_data", True)
         config.set("file_format", "json")
@@ -158,6 +182,8 @@ en = {{"key": "value"}}
             with open(filename, "w") as f:
                 f.write('{"a": "b"}')
             self.assertEqual(t("test.a"), "b")
+            i18n.unload_everything()
+            self.assertEqual(translations.container, {})
 
             # rewrite file and reload
             with open(filename, "w") as f:

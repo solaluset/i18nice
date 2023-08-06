@@ -78,9 +78,19 @@ def load_translation_file(filename, base_directory, locale=None):
     formatters.expand_static_refs(loaded, locale)
 
 
-def reload_everything():
+def load_everything(locale=None):
+    for directory in config.get("load_path"):
+        recursive_load_everything(directory, "", locale)
+
+
+def unload_everything():
     translations.clear()
     Loader.loaded_files.clear()
+
+
+def reload_everything():
+    unload_everything()
+    load_everything()
 
 
 def load_translation_dic(dic, namespace, locale):
@@ -116,25 +126,44 @@ def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
         recursive_search_dir(splitted_namespace[1:], os.path.join(directory, namespace), root_dir, locale)
 
 
-def recursive_load_directory(root_dir, directory, locale):
+def recursive_load_everything(root_dir, directory, locale):
     dir_ = os.path.join(root_dir, directory)
     for f in os.listdir(dir_):
         path = os.path.join(dir_, f)
         if os.path.isfile(path):
-            if os.path.splitext(path)[1][1:] == config.get("file_format"):
-                format_match = config.get("filename_format").match(f)
-                if (
-                    not format_match
-                    or format_match.groupdict().get("locale", locale) != locale
-                ):
-                    continue
-                load_translation_file(
-                    os.path.join(directory, f),
-                    root_dir,
-                    locale,
+            if os.path.splitext(path)[1][1:] != config.get("file_format"):
+                continue
+            format_match = config.get("filename_format").match(f)
+            if not format_match:
+                continue
+            requested_locale = locale
+            file_locale = format_match.groupdict().get("locale", requested_locale)
+            if requested_locale is None:
+                requested_locale = file_locale
+            if requested_locale is not None:
+                if requested_locale == file_locale:
+                    load_translation_file(
+                        os.path.join(directory, f),
+                        root_dir,
+                        requested_locale,
+                    )
+            elif not config.get("skip_locale_root_data"):
+                file_content = load_resource(path, None, False)
+                for l, dic in file_content.items():
+                    if isinstance(dic, dict):
+                        load_translation_dic(
+                            dic,
+                            get_namespace_from_filepath(os.path.join(directory, f)),
+                            l,
+                        )
+            else:
+                raise I18nFileLoadError(
+                    f"Cannot identify locales for {path!r}:"
+                    " filename_format doesn't include locale"
+                    " and skip_locale_root_data is set to True"
                 )
         elif os.path.isdir(path):
-            recursive_load_directory(
+            recursive_load_everything(
                 root_dir,
                 os.path.join(directory, f),
                 locale,
