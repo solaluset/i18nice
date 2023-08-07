@@ -163,7 +163,7 @@ def recursive_load_everything(root_dir, directory, locale):
                     " filename_format doesn't include locale"
                     " and skip_locale_root_data is set to True"
                 )
-        elif os.path.isdir(path):
+        elif os.path.isdir(path):  # pragma: no branch
             recursive_load_everything(
                 root_dir,
                 os.path.join(directory, f),

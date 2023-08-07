@@ -233,13 +233,15 @@ en = {{"key": "value"}}
         config.set("filename_format", "{locale}.{namespace}.{format}")
         namespace = resource_loader.get_namespace_from_filepath("x.y.z")
         self.assertEqual(namespace, "y")
-        config.set("filename_format", "{namespace}-{locale}.{format}")
-        namespace = resource_loader.get_namespace_from_filepath("x-y.z")
+        config.set("filename_format", "{namespace}-{locale}.{format}!")
+        namespace = resource_loader.get_namespace_from_filepath("x-y.z!")
         self.assertEqual(namespace, "x")
 
     def test_invalid_filename_format(self):
         with self.assertRaises(AttributeError):
             config.get("filename_format").has_something
+        with self.assertRaises(AttributeError):
+            config.get("filename_format").something
         with self.assertRaisesRegex(I18nInvalidFormat, "Can't apply .+"):
             config.set("filename_format", "{format!r}")
         with self.assertRaisesRegex(I18nInvalidFormat, "Unknown placeholder .+ 'formatus'"):

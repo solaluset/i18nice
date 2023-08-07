@@ -1,0 +1,5 @@
+[run]
+command_line = -m i18n.tests
+branch = true
+# omit temporary file
+omit = memoize.en.py

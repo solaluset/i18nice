@@ -32,7 +32,7 @@ jobs:
       - name: Install package
         run: pip install .
       - name: Run tests
-        run: coverage run -m i18n.tests
+        run: coverage run
       - name: Upload coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

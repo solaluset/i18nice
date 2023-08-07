@@ -19,7 +19,7 @@ class ModuleDisabler(PathFinder):
     @disabled_modules.setter
     def disabled_modules(self, modules):
         for k in modules:
-            if k in sys.modules:
+            if k in sys.modules:  # pragma: no branch
                 del sys.modules[k]
         self._disabled_modules = modules
 
