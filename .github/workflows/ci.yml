@@ -34,6 +34,8 @@ jobs:
       - name: Run tests
         run: coverage run
       - name: Upload coverage
+        # PyPy data isn't reliable because it changes trace function
+        if: "!startsWith(matrix.python-version, 'pypy')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github
