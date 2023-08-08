@@ -1,8 +1,6 @@
 import os.path
-import sys
 from importlib import util
 
-from .. import config
 from . import Loader, I18nFileLoadError
 
 

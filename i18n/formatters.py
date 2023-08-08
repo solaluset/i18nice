@@ -57,7 +57,12 @@ class TranslationFormatter(Formatter):
 
     def format(self):
         if 'count' in self.kwargs:
-            self.template = pluralize(self.translation_key, self.locale, self.template, self.kwargs['count'])
+            self.template = pluralize(
+                self.translation_key,
+                self.locale,
+                self.template,
+                self.kwargs['count'],
+            )
         return super().format()
 
     def _format_str(self):

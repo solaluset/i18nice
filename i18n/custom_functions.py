@@ -12,6 +12,7 @@ def add_function(name: str, func: Callable[..., int], locale: Optional[str] = No
     else:
         global_functions[name] = func
 
+
 def get_function(name, locale=None):
     if locale and name in locales_functions[locale]:
         return locales_functions[locale][name]

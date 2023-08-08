@@ -47,6 +47,7 @@ settings = {
     'argument_delimiter': '|'
 }
 
+
 def set(key: str, value: Any):
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
@@ -65,6 +66,7 @@ def set(key: str, value: Any):
         from . import formatters
 
         _reload(formatters)
+
 
 def get(key: str) -> Any:
     return settings[key]

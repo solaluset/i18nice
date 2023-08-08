@@ -2,6 +2,7 @@ import json
 
 from . import Loader, I18nFileLoadError
 
+
 class JsonLoader(Loader):
     """class to load json files"""
     def __init__(self):

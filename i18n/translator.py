@@ -53,7 +53,7 @@ def translate(key, **kwargs):
 def pluralize(key, locale, translation, count):
     return_value = key
     try:
-        if type(translation) != dict:
+        if not isinstance(translation, dict):
             return_value = translation
             raise KeyError('use of count witouth dict for key {0}'.format(key))
         if count == 0:

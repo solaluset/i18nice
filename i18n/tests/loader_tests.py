@@ -38,6 +38,7 @@ class TestFileLoader(unittest.TestCase):
     def test_register_wrong_loader(self):
         class WrongLoader(object):
             pass
+
         class BadLoader(Loader):
             pass
         with self.assertRaises(ValueError):
@@ -68,14 +69,23 @@ class TestFileLoader(unittest.TestCase):
     def test_load_wrong_json_file(self):
         resource_loader.init_json_loader()
         with self.assertRaisesRegex(I18nFileLoadError, "error getting data .*"):
-            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"), "foo")
+            resource_loader.load_resource(
+                os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"),
+                "foo",
+            )
         with self.assertRaisesRegex(I18nFileLoadError, "invalid JSON: .*"):
-            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.json"), "foo")
+            resource_loader.load_resource(
+                os.path.join(RESOURCE_FOLDER, "translations", "invalid.json"),
+                "foo",
+            )
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_yaml_file(self):
         resource_loader.init_yaml_loader()
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.yml"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.yml"),
+            "settings",
+        )
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
@@ -100,18 +110,27 @@ class TestFileLoader(unittest.TestCase):
     def test_load_broken_yaml(self):
         resource_loader.init_yaml_loader()
         with self.assertRaisesRegex(I18nFileLoadError, "invalid YAML: .*"):
-            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.yml"), "foo")
+            resource_loader.load_resource(
+                os.path.join(RESOURCE_FOLDER, "translations", "invalid.yml"),
+                "foo",
+            )
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_load_json_file(self):
         resource_loader.init_json_loader()
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"),
+            "settings",
+        )
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
     def test_load_python_file(self):
         resource_loader.init_python_loader()
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.py"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.py"),
+            "settings",
+        )
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
@@ -204,7 +223,10 @@ en = {{"key": "value"}}
     def test_load_file_with_strange_encoding(self):
         resource_loader.init_json_loader()
         config.set("encoding", "euc-jp")
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "eucjp_config.json"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "eucjp_config.json"),
+            "settings",
+        )
         self.assertIn("ほげ", data)
         self.assertEqual("ホゲ", data["ほげ"])
 
@@ -256,7 +278,10 @@ en = {{"key": "value"}}
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_translation_file(self):
         resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
+        resource_loader.load_translation_file(
+            "foo.en.yml",
+            os.path.join(RESOURCE_FOLDER, "translations"),
+        )
 
         self.assertTrue(translations.has("foo.normal_key"))
         self.assertTrue(translations.has("foo.parent.nested_key"))
@@ -265,7 +290,10 @@ en = {{"key": "value"}}
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_translation_list(self):
         resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
+        resource_loader.load_translation_file(
+            "foo.en.yml",
+            os.path.join(RESOURCE_FOLDER, "translations"),
+        )
 
         default_format = formatters.TranslationFormatter.format
         call_count = 0
@@ -290,7 +318,10 @@ en = {{"key": "value"}}
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_plural(self):
         resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
+        resource_loader.load_translation_file(
+            "foo.en.yml",
+            os.path.join(RESOURCE_FOLDER, "translations"),
+        )
         self.assertTrue(translations.has("foo.mail_number"))
         translated_plural = translations.get("foo.mail_number")
         self.assertIsInstance(translated_plural, dict)
@@ -391,7 +422,6 @@ en = {{"key": "value"}}
         reload(config)
         self.assertIs(i18n.load_path, config.get("load_path"))
 
-
     @unittest.skipUnless(json_available, "json library not available")
     def test_static_references(self):
         resource_loader.init_json_loader()
@@ -403,8 +433,14 @@ en = {{"key": "value"}}
 
         self.assertEqual(t("static_ref.welcome"), "Welcome to Programname")
         self.assertEqual(t("static_ref.cool.best"), "Programname is the best program ever!")
-        self.assertEqual(t("static_ref.cool.downloads", count=0), "Programname was never downloaded :(")
-        self.assertEqual(t("static_ref.cool.downloads", count=10), "Programname was downloaded 10 times!")
+        self.assertEqual(
+            t("static_ref.cool.downloads", count=0),
+            "Programname was never downloaded :(",
+        )
+        self.assertEqual(
+            t("static_ref.cool.downloads", count=10),
+            "Programname was downloaded 10 times!",
+        )
         self.assertEqual(t("static_ref.otherFile"), "FooBar")
 
         i18n.add_function("f", lambda: 0)
