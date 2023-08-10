@@ -55,14 +55,30 @@ class TranslationFormatter(Formatter):
         )?
     """
 
+    def __init__(self, translation_key, locale, value, kwargs):
+        super().__init__(translation_key, locale, value, kwargs)
+        self.pluralized = False
+
     def format(self):
-        if 'count' in self.kwargs:
-            self.template = pluralize(
-                self.translation_key,
-                self.locale,
-                self.template,
-                self.kwargs['count'],
-            )
+        if not self.pluralized and "count" in self.kwargs:
+            if isinstance(self.template, tuple):
+                self.template = tuple(
+                    pluralize(
+                        self.translation_key,
+                        self.locale,
+                        i,
+                        self.kwargs["count"],
+                    )
+                    for i in self.template
+                )
+            else:
+                self.template = pluralize(
+                    self.translation_key,
+                    self.locale,
+                    self.template,
+                    self.kwargs["count"],
+                )
+            self.pluralized = True
         return super().format()
 
     def _format_str(self):

@@ -313,7 +313,10 @@ en = {{"key": "value"}}
             self.assertEqual(t("foo.welcome", name="Sam", count=2)[1], "Hello Sam and friends")
             # 1 call + 2 recursive
             self.assertEqual(t("foo.welcome", name="Sam", count=1)[:2], ("Hi Sam", "Hello Sam"))
-        self.assertEqual(call_count, 5)
+            i18n.set("on_missing_plural", "error")
+            # 1 + 1
+            self.assertEqual(t("foo.welcome", name="Sam", count=3)[1:2], ("Hello Sam and friends",))
+        self.assertEqual(call_count, 7)
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_plural(self):
