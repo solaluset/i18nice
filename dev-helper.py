@@ -60,6 +60,10 @@ def get_packages(profile=None):
 
 @contextmanager
 def stash_unstaged():
+    if subprocess.check_output(("git", "ls-files", "--exclude-standard", "-om")) == b"":
+        # nothing to stash
+        yield
+        return
     subprocess.run(
         ("git", "stash", "--keep-index", "--include-untracked", "-m", "temp"),
         check=True,
