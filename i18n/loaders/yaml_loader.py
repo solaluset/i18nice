@@ -11,7 +11,7 @@ class YamlLoader(Loader):
     def __init__(self):
         super(YamlLoader, self).__init__()
 
-    def parse_file(self, file_content):
+    def parse_file(self, file_content: str) -> dict:
         try:
             return yaml.load(file_content, Loader=self.loader)
         except yaml.YAMLError as e:

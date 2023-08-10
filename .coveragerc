@@ -3,3 +3,7 @@ command_line = -m i18n.tests
 branch = true
 # omit temporary file
 omit = memoize.en.py
+
+[report]
+# overloaded methods are only for documentation purposes
+exclude_also = @(typing\.)?overload

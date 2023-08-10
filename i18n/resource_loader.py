@@ -1,5 +1,5 @@
 import os.path
-from typing import Type, Iterable, Optional
+from typing import Type, Iterable, Optional, List
 
 from . import config
 from .loaders import Loader, I18nFileLoadError
@@ -19,7 +19,7 @@ def register_loader(loader_class: Type[Loader], supported_extensions: Iterable[s
         loaders[extension] = loader
 
 
-def load_resource(filename, root_data, remember_content=False):
+def load_resource(filename: str, root_data: Optional[str], remember_content: bool = False) -> dict:
     extension = os.path.splitext(filename)[1][1:]
     if extension not in loaders:
         raise I18nFileLoadError("no loader available for extension {0}".format(extension))
@@ -55,7 +55,7 @@ def load_config(filename: str):
         config.set(key, value)
 
 
-def get_namespace_from_filepath(filename):
+def get_namespace_from_filepath(filename: str) -> str:
     namespace = os.path.dirname(filename).strip(os.sep).replace(
         os.sep,
         config.get("namespace_delimiter"),
@@ -69,7 +69,7 @@ def get_namespace_from_filepath(filename):
     return namespace
 
 
-def load_translation_file(filename, base_directory, locale=None):
+def load_translation_file(filename: str, base_directory: str, locale: Optional[str] = None):
     if locale is None:
         locale = config.get('locale')
     skip_locale_root_data = config.get('skip_locale_root_data')
@@ -79,7 +79,7 @@ def load_translation_file(filename, base_directory, locale=None):
     translations_dic = load_resource(
         os.path.join(base_directory, filename),
         root_data,
-        remember_content,
+        bool(remember_content),
     )
     namespace = get_namespace_from_filepath(filename)
     loaded = load_translation_dic(translations_dic, namespace, locale)
@@ -101,7 +101,7 @@ def reload_everything():
     load_everything()
 
 
-def load_translation_dic(dic, namespace, locale):
+def load_translation_dic(dic: dict, namespace: str, locale: str):
     loaded = []
     if namespace:
         namespace += config.get('namespace_delimiter')
@@ -115,7 +115,7 @@ def load_translation_dic(dic, namespace, locale):
     return loaded
 
 
-def search_translation(key, locale=None):
+def search_translation(key: str, locale: Optional[str] = None):
     if locale is None:
         locale = config.get('locale')
     splitted_key = key.split(config.get('namespace_delimiter'))
@@ -124,7 +124,7 @@ def search_translation(key, locale=None):
         recursive_search_dir(namespace, "", directory, locale)
 
 
-def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
+def recursive_search_dir(splitted_namespace: List[str], directory: str, root_dir: str, locale: str):
     namespace = splitted_namespace[0] if splitted_namespace else ""
     seeked_file = config.get("filename_format").format(
         namespace=namespace,
@@ -143,7 +143,7 @@ def recursive_search_dir(splitted_namespace, directory, root_dir, locale):
         )
 
 
-def recursive_load_everything(root_dir, directory, locale):
+def recursive_load_everything(root_dir: str, directory: str, locale: Optional[str]):
     dir_ = os.path.join(root_dir, directory)
     for f in os.listdir(dir_):
         path = os.path.join(dir_, f)

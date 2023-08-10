@@ -15,7 +15,7 @@ from i18n.errors import I18nFileLoadError, I18nInvalidFormat
 from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
-from i18n import translations, formatters
+from i18n import translator, translations, formatters
 from i18n.loaders import Loader
 
 
@@ -270,10 +270,23 @@ en = {{"key": "value"}}
             config.set("filename_format", "{formatus}")
 
     def test_formatters_misc(self):
+        fmt = formatters.Formatter("", "", "", {})
+        len(fmt)
+        iter(fmt)
         with self.assertRaises(NotImplementedError):
-            formatters.Formatter("", "", "", {}).format()
+            fmt.format()
 
         self.assertEqual(repr(formatters.FilenameFormat("", {})), "FilenameFormat('', {})")
+
+    def test_missing_types(self):
+        import re
+        import typing
+        if hasattr(re, "Match"):  # pragma: no cover
+            del re.Match
+            reload(formatters)
+        if hasattr(typing, "SupportsIndex"):  # pragma: no cover
+            del typing.SupportsIndex
+            reload(translator)
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_translation_file(self):

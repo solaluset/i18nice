@@ -10,7 +10,7 @@ class PythonLoader(Loader):
     def __init__(self):
         super(PythonLoader, self).__init__()
 
-    def load_file(self, filename):
+    def load_file(self, filename: str) -> dict:  # type: ignore[override]
         _, name = os.path.split(filename)
         module_name, _ = os.path.splitext(name)
         try:
@@ -21,5 +21,5 @@ class PythonLoader(Loader):
         except Exception as e:
             raise I18nFileLoadError("error loading file {0}".format(filename)) from e
 
-    def parse_file(self, file_content):
+    def parse_file(self, file_content: dict) -> dict:  # type: ignore[override]
         return file_content
