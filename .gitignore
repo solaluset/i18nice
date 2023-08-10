@@ -8,3 +8,4 @@ dist/
 .idea/
 .pytest_cache/
 .coverage
+dev_env

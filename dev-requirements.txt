@@ -1,0 +1,5 @@
+# tests
+.[YAML]
+coverage==7.2.7
+# checks
+flake8==6.1.0
