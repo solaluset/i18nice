@@ -142,8 +142,7 @@ def check_coverage():
 
     cov.stop()
     return (
-        # coverage doesn't want to omit temp files in 3.6
-        cov.report(ignore_errors=True if sys.version_info < (3, 7) else None) == 100.0
+        cov.report() == 100.0
         # always succeed on GA
         or os.getenv("SKIP_VENV") == "1"
     )
