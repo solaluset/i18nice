@@ -15,11 +15,12 @@ class PythonLoader(Loader):
         module_name, _ = os.path.splitext(name)
         try:
             spec = util.spec_from_file_location(module_name, filename)
+            assert spec is not None, "spec is None"
             module = util.module_from_spec(spec)
             spec.loader.exec_module(module)
             return vars(module)
         except Exception as e:
-            raise I18nFileLoadError("error loading file {0}".format(filename)) from e
+            raise I18nFileLoadError("error loading file {!r}: {}".format(filename, e)) from e
 
     def parse_file(self, file_content: dict) -> dict:  # type: ignore[override]
         return file_content
