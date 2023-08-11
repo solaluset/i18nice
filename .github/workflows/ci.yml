@@ -27,13 +27,26 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install requirements
-        run: pip install -r requirements.txt
-      - name: Install package
-        run: pip install .
       - name: Run tests
-        run: coverage run -m i18n.tests
+        run: python dev-helper.py run-tests
+        env:
+          SKIP_VENV: 1
       - name: Upload coverage
+        # PyPy data isn't reliable because it changes trace function
+        if: "!startsWith(matrix.python-version, 'pypy')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: coveralls --service=github
+        run: pip install coveralls==3.3.1 && coveralls --service=github
+
+  run-checks:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Run checks
+        run: python dev-helper.py run-checks
+        env:
+          SKIP_VENV: 1

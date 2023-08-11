@@ -1,31 +1,47 @@
 from re import compile, escape
+try:
+    from re import Match
+except ImportError:
+    # Python 3.6 doesn't have this
+    Match = type(compile("").match(""))  # type: ignore
 from string import Template, Formatter as _Fmt
+from typing import Any, Iterable, Optional, Set, Callable, Tuple, TypeVar
+from collections.abc import Mapping
 
 from . import config, translations
+from .translations import TranslationType
 from .translator import pluralize
 from .errors import I18nInvalidStaticRef, I18nInvalidFormat
 from .custom_functions import get_function
 
 
-class Formatter(Template):
+class Formatter(
+    Template,
+    Mapping,
+    metaclass=type(  # type: ignore[misc]
+        "FormatterMeta",
+        tuple(c for c in map(type, (Template, Mapping)) if c != type),
+        {},
+    ),
+):
     delimiter = config.get("placeholder_delimiter")
 
-    def __init__(self, translation_key, locale, value, kwargs):
-        super().__init__(value)
+    def __init__(self, translation_key: str, locale: str, value: TranslationType, kwargs: dict):
+        super().__init__(value)  # type: ignore[arg-type]
         self.translation_key = translation_key
         self.locale = locale
         self.kwargs = kwargs
 
-    def substitute(self):
+    def substitute(self) -> str:  # type: ignore[override]
         return super().substitute(self)
 
-    def safe_substitute(self):
+    def safe_substitute(self) -> str:  # type: ignore[override]
         return super().safe_substitute(self)
 
-    def _format_str(self):
+    def _format_str(self) -> str:
         raise NotImplementedError
 
-    def format(self):
+    def format(self) -> TranslationType:
         if isinstance(self.template, str):
             return self._format_str()
         if isinstance(self.template, dict):
@@ -41,8 +57,14 @@ class Formatter(Template):
             result.append(self.format())
         return tuple(result)
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         return self.kwargs[key]
+
+    def __len__(self):
+        return self.kwargs.__len__()
+
+    def __iter__(self):
+        return self.kwargs.__iter__()
 
 
 class TranslationFormatter(Formatter):
@@ -55,27 +77,48 @@ class TranslationFormatter(Formatter):
         )?
     """
 
-    def format(self):
-        if 'count' in self.kwargs:
-            self.template = pluralize(self.translation_key, self.locale, self.template, self.kwargs['count'])
+    def __init__(self, translation_key: str, locale: str, value: TranslationType, kwargs: dict):
+        super().__init__(translation_key, locale, value, kwargs)
+        self.pluralized = False
+
+    def format(self) -> TranslationType:
+        if not self.pluralized and "count" in self.kwargs:
+            if isinstance(self.template, tuple):
+                self.template = tuple(
+                    pluralize(
+                        self.translation_key,
+                        self.locale,
+                        i,
+                        self.kwargs["count"],
+                    )
+                    for i in self.template
+                )
+            else:
+                self.template = pluralize(
+                    self.translation_key,
+                    self.locale,
+                    self.template,
+                    self.kwargs["count"],
+                )
+            self.pluralized = True
         return super().format()
 
-    def _format_str(self):
+    def _format_str(self) -> str:
         if config.get("on_missing_placeholder"):
             return self.substitute()
         else:
             return self.safe_substitute()
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         try:
             name, _, args = key.partition("(")
             if args:
                 f = get_function(name, self.locale)
                 if f:
                     i = f(**self.kwargs)
-                    args = args.strip(")").split(config.get("argument_delimiter"))
+                    arg_list = args.strip(")").split(config.get("argument_delimiter"))
                     try:
-                        return args[i]
+                        return arg_list[i]
                     except (IndexError, TypeError) as e:
                         raise ValueError(
                             "No argument {0!r} for function {1!r} (in {2!r})".format(
@@ -105,14 +148,14 @@ class StaticFormatter(Formatter):
         escape(config.get("namespace_delimiter")),
     )
 
-    def __init__(self, translation_key, locale, value):
-        super().__init__(translation_key, locale, value, None)
+    def __init__(self, translation_key: str, locale: str, value: TranslationType):
+        super().__init__(translation_key, locale, value, {})
         self.path = translation_key.split(config.get("namespace_delimiter"))
 
-    def _format_str(self):
+    def _format_str(self) -> str:
         return self.safe_substitute()
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         delim = config.get("namespace_delimiter")
         full_key = key.lstrip(delim)
         if full_key == key:
@@ -142,11 +185,16 @@ class StaticFormatter(Formatter):
             )
 
 
-def expand_static_refs(keys, locale):
+def expand_static_refs(keys: Iterable[str], locale: str) -> None:
     for key in keys:
         tr = translations.get(key, locale)
         tr = StaticFormatter(key, locale, tr).format()
         translations.add(key, tr, locale)
+
+
+# This is (hopefully) a temporary workaround
+# https://github.com/python/mypy/issues/15848
+StrOrLiteralStr = TypeVar("StrOrLiteralStr", str, str)
 
 
 class FilenameFormat(_Fmt):
@@ -154,25 +202,25 @@ class FilenameFormat(_Fmt):
         super().__init__()
         self.template = template
         self.variables = variables
-        self.used_variables = set()
+        self.used_variables: Set[str] = set()
         self.pattern = compile(super().format(template))
 
     @property
-    def format(self):
+    def format(self) -> Callable[..., str]:
         return self.template.format
 
     @property
-    def match(self):
+    def match(self) -> Callable[[str], Optional[Match]]:
         return self.pattern.fullmatch
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> bool:
         if name.startswith("has_"):
             _, _, var_name = name.partition("_")
             if var_name in self.variables:
                 return var_name in self.used_variables
         raise AttributeError(f"{self.__class__.__name__!r} object has no attribute {name!r}")
 
-    def parse(self, s):
+    def parse(self, s: StrOrLiteralStr) -> Iterable[Tuple[StrOrLiteralStr, None, None, None]]:
         for text, field, spec, conversion in super().parse(s):
             if spec or conversion:
                 raise I18nInvalidFormat("Can't apply format spec or conversion in filename format")
@@ -185,5 +233,5 @@ class FilenameFormat(_Fmt):
                 self.used_variables.add(field)
             yield text, None, None, None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.template!r}, {self.variables!r})"

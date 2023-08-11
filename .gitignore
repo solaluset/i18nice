@@ -7,3 +7,5 @@ dist/
 .python-version
 .idea/
 .pytest_cache/
+.coverage
+dev_env

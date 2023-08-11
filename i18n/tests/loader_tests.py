@@ -7,6 +7,7 @@ from unittest import mock
 import os
 import os.path
 import tempfile
+from typing import cast
 from importlib import reload
 
 import i18n
@@ -15,7 +16,7 @@ from i18n.errors import I18nFileLoadError, I18nInvalidFormat
 from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
-from i18n import translations, formatters
+from i18n import translator, translations, formatters
 from i18n.loaders import Loader
 
 
@@ -38,10 +39,11 @@ class TestFileLoader(unittest.TestCase):
     def test_register_wrong_loader(self):
         class WrongLoader(object):
             pass
+
         class BadLoader(Loader):
             pass
         with self.assertRaises(ValueError):
-            resource_loader.register_loader(WrongLoader, [])
+            resource_loader.register_loader(WrongLoader, [])  # type: ignore[arg-type]
         with self.assertRaises(NotImplementedError):
             BadLoader().load_resource(
                 os.path.join(RESOURCE_FOLDER, "translations", "en.json"),
@@ -68,14 +70,23 @@ class TestFileLoader(unittest.TestCase):
     def test_load_wrong_json_file(self):
         resource_loader.init_json_loader()
         with self.assertRaisesRegex(I18nFileLoadError, "error getting data .*"):
-            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"), "foo")
+            resource_loader.load_resource(
+                os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"),
+                "foo",
+            )
         with self.assertRaisesRegex(I18nFileLoadError, "invalid JSON: .*"):
-            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.json"), "foo")
+            resource_loader.load_resource(
+                os.path.join(RESOURCE_FOLDER, "translations", "invalid.json"),
+                "foo",
+            )
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_yaml_file(self):
         resource_loader.init_yaml_loader()
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.yml"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.yml"),
+            "settings",
+        )
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
@@ -100,18 +111,27 @@ class TestFileLoader(unittest.TestCase):
     def test_load_broken_yaml(self):
         resource_loader.init_yaml_loader()
         with self.assertRaisesRegex(I18nFileLoadError, "invalid YAML: .*"):
-            resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "translations", "invalid.yml"), "foo")
+            resource_loader.load_resource(
+                os.path.join(RESOURCE_FOLDER, "translations", "invalid.yml"),
+                "foo",
+            )
 
     @unittest.skipUnless(json_available, "json library not available")
     def test_load_json_file(self):
         resource_loader.init_json_loader()
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.json"),
+            "settings",
+        )
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
     def test_load_python_file(self):
         resource_loader.init_python_loader()
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.py"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "dummy_config.py"),
+            "settings",
+        )
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
@@ -164,6 +184,7 @@ en = {{"key": "value"}}
         config.set("filename_format", "{namespace}.{format}")
         i18n.load_everything()
         self.assertTrue(translations.has("d.d", "en"))
+        self.assertEqual(translations.get("d.ref", "en"), "e")
         i18n.unload_everything()
         config.set("skip_locale_root_data", True)
         i18n.load_everything("en")
@@ -204,7 +225,10 @@ en = {{"key": "value"}}
     def test_load_file_with_strange_encoding(self):
         resource_loader.init_json_loader()
         config.set("encoding", "euc-jp")
-        data = resource_loader.load_resource(os.path.join(RESOURCE_FOLDER, "settings", "eucjp_config.json"), "settings")
+        data = resource_loader.load_resource(
+            os.path.join(RESOURCE_FOLDER, "settings", "eucjp_config.json"),
+            "settings",
+        )
         self.assertIn("ほげ", data)
         self.assertEqual("ホゲ", data["ほげ"])
 
@@ -233,28 +257,46 @@ en = {{"key": "value"}}
         config.set("filename_format", "{locale}.{namespace}.{format}")
         namespace = resource_loader.get_namespace_from_filepath("x.y.z")
         self.assertEqual(namespace, "y")
-        config.set("filename_format", "{namespace}-{locale}.{format}")
-        namespace = resource_loader.get_namespace_from_filepath("x-y.z")
+        config.set("filename_format", "{namespace}-{locale}.{format}!")
+        namespace = resource_loader.get_namespace_from_filepath("x-y.z!")
         self.assertEqual(namespace, "x")
 
     def test_invalid_filename_format(self):
         with self.assertRaises(AttributeError):
             config.get("filename_format").has_something
+        with self.assertRaises(AttributeError):
+            config.get("filename_format").something
         with self.assertRaisesRegex(I18nInvalidFormat, "Can't apply .+"):
             config.set("filename_format", "{format!r}")
         with self.assertRaisesRegex(I18nInvalidFormat, "Unknown placeholder .+ 'formatus'"):
             config.set("filename_format", "{formatus}")
 
     def test_formatters_misc(self):
+        fmt = formatters.Formatter("", "", "", {})
+        len(fmt)
+        iter(fmt)
         with self.assertRaises(NotImplementedError):
-            formatters.Formatter("", "", "", {}).format()
+            fmt.format()
 
         self.assertEqual(repr(formatters.FilenameFormat("", {})), "FilenameFormat('', {})")
+
+    def test_missing_types(self):
+        import re
+        import typing
+        if hasattr(re, "Match"):  # pragma: no cover
+            del re.Match
+            reload(formatters)
+        if hasattr(typing, "SupportsIndex"):  # pragma: no cover
+            del typing.SupportsIndex
+            reload(translator)
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_translation_file(self):
         resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
+        resource_loader.load_translation_file(
+            "foo.en.yml",
+            os.path.join(RESOURCE_FOLDER, "translations"),
+        )
 
         self.assertTrue(translations.has("foo.normal_key"))
         self.assertTrue(translations.has("foo.parent.nested_key"))
@@ -263,7 +305,10 @@ en = {{"key": "value"}}
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_translation_list(self):
         resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
+        resource_loader.load_translation_file(
+            "foo.en.yml",
+            os.path.join(RESOURCE_FOLDER, "translations"),
+        )
 
         default_format = formatters.TranslationFormatter.format
         call_count = 0
@@ -283,15 +328,22 @@ en = {{"key": "value"}}
             self.assertEqual(t("foo.welcome", name="Sam", count=2)[1], "Hello Sam and friends")
             # 1 call + 2 recursive
             self.assertEqual(t("foo.welcome", name="Sam", count=1)[:2], ("Hi Sam", "Hello Sam"))
-        self.assertEqual(call_count, 5)
+            i18n.set("on_missing_plural", "error")
+            # 1 + 1
+            self.assertEqual(t("foo.welcome", name="Sam", count=3)[1:2], ("Hello Sam and friends",))
+        self.assertEqual(call_count, 7)
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_plural(self):
         resource_loader.init_yaml_loader()
-        resource_loader.load_translation_file("foo.en.yml", os.path.join(RESOURCE_FOLDER, "translations"))
+        resource_loader.load_translation_file(
+            "foo.en.yml",
+            os.path.join(RESOURCE_FOLDER, "translations"),
+        )
         self.assertTrue(translations.has("foo.mail_number"))
         translated_plural = translations.get("foo.mail_number")
         self.assertIsInstance(translated_plural, dict)
+        translated_plural = cast(dict, translated_plural)
         self.assertEqual(translated_plural["zero"], "You do not have any mail.")
         self.assertEqual(translated_plural["one"], "You have a new mail.")
         self.assertEqual(translated_plural["many"], "You have %{count} new mails.")
@@ -389,7 +441,6 @@ en = {{"key": "value"}}
         reload(config)
         self.assertIs(i18n.load_path, config.get("load_path"))
 
-
     @unittest.skipUnless(json_available, "json library not available")
     def test_static_references(self):
         resource_loader.init_json_loader()
@@ -401,8 +452,14 @@ en = {{"key": "value"}}
 
         self.assertEqual(t("static_ref.welcome"), "Welcome to Programname")
         self.assertEqual(t("static_ref.cool.best"), "Programname is the best program ever!")
-        self.assertEqual(t("static_ref.cool.downloads", count=0), "Programname was never downloaded :(")
-        self.assertEqual(t("static_ref.cool.downloads", count=10), "Programname was downloaded 10 times!")
+        self.assertEqual(
+            t("static_ref.cool.downloads", count=0),
+            "Programname was never downloaded :(",
+        )
+        self.assertEqual(
+            t("static_ref.cool.downloads", count=10),
+            "Programname was downloaded 10 times!",
+        )
         self.assertEqual(t("static_ref.otherFile"), "FooBar")
 
         i18n.add_function("f", lambda: 0)

@@ -69,7 +69,7 @@ In the above example, the translation key is `foo.hi` and not just `hi`. This is
 To remove `{namespace}` from filename format please change the `filename_format` configuration.
 
     i18n.set('filename_format', '{locale}.{format}')
-            
+
 #### Directory namespaces
 If your files are in subfolders, the foldernames are also used as namespaces, so for example if your translation root path is `/path/to/translations` and you have the file `/path/to/translations/my/app/name/foo.en.yml`, the translation namespace for the file will be `my.app.name` and the file keys will therefore be accessible from `my.app.name.foo.my_key`.
 
@@ -104,7 +104,7 @@ You can set a fallback which will be used when the key is not found in the defau
     i18n.set('fallback', 'en')
     i18n.add_translation('foo', 'bar', locale='en')
     i18n.t('foo') # bar
-    
+
 ### Skip locale from root
 Sometimes i18n structure file came from another project or not contains root element with locale eg. `en` name.
 

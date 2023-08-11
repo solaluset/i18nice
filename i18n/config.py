@@ -47,7 +47,8 @@ settings = {
     'argument_delimiter': '|'
 }
 
-def set(key: str, value: Any):
+
+def set(key: str, value: Any) -> None:
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
     elif key == 'load_path':
@@ -65,6 +66,7 @@ def set(key: str, value: Any):
         from . import formatters
 
         _reload(formatters)
+
 
 def get(key: str) -> Any:
     return settings[key]

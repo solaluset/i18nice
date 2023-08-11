@@ -1,0 +1,13 @@
+[run]
+command_line = -m i18n.tests
+branch = true
+# omit temporary file
+omit = memoize.en.py
+
+[report]
+# in case omitting doesn't quite work
+ignore_errors = true
+exclude_lines =
+    ^.*# pragma: no cover
+    # overloaded methods are only for documentation purposes
+    ^[\s]*@(typing\.)?overload$

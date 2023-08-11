@@ -1,5 +1,6 @@
 import sys
 import unittest
+from typing import Any, Collection
 from os.path import dirname
 from importlib.machinery import PathFinder
 
@@ -10,20 +11,20 @@ sys.path.insert(
 
 
 class ModuleDisabler(PathFinder):
-    _disabled_modules = []
+    _disabled_modules: Collection[str] = []
 
     @property
-    def disabled_modules(self):
+    def disabled_modules(self) -> Collection[str]:
         return self._disabled_modules
 
     @disabled_modules.setter
-    def disabled_modules(self, modules):
+    def disabled_modules(self, modules: Collection[str]) -> None:
         for k in modules:
-            if k in sys.modules:
+            if k in sys.modules:  # pragma: no branch
                 del sys.modules[k]
         self._disabled_modules = modules
 
-    def find_spec(self, name, *_):
+    def find_spec(self, name: str, *_: Any) -> None:  # type: ignore[override]
         if name in self.disabled_modules:
             raise ImportError(
                 "module {0} is disabled".format(
@@ -58,7 +59,7 @@ def suite():
     return suite
 
 
-def test_without(modules):
+def test_without(modules: Collection[str]) -> None:
     disabler = ModuleDisabler()
     disabler.disabled_modules = modules
     sys.meta_path.insert(0, disabler)

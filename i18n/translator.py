@@ -1,9 +1,15 @@
+from typing import Any, Dict, Union, Tuple, overload
+try:
+    from typing import SupportsIndex
+except ImportError:
+    SupportsIndex = int  # type: ignore
+
 from . import config
 from . import resource_loader
 from . import translations, formatters
 
 
-def t(key: str, **kwargs) -> str:
+def t(key: str, **kwargs: Any) -> Union[str, "LazyTranslationTuple"]:
     locale = kwargs.pop('locale', None) or config.get('locale')
     try:
         return translate(key, locale=locale, **kwargs)
@@ -25,15 +31,31 @@ def t(key: str, **kwargs) -> str:
 
 
 class LazyTranslationTuple(tuple):
-    def __new__(cls, translation_key, locale, value, kwargs):
+    translation_key: str
+    locale: str
+    kwargs: dict
+
+    def __new__(
+        cls,
+        translation_key: str,
+        locale: str,
+        value: tuple,
+        kwargs: dict,
+    ) -> "LazyTranslationTuple":
         obj = super().__new__(cls, value)
         obj.translation_key = translation_key
         obj.locale = locale
         obj.kwargs = kwargs
         return obj
 
-    def __getitem__(self, key):
-        return formatters.TranslationFormatter(
+    @overload
+    def __getitem__(self, key: SupportsIndex) -> str: ...
+
+    @overload
+    def __getitem__(self, key: slice) -> Tuple[str, ...]: ...
+
+    def __getitem__(self, key: Union[SupportsIndex, slice]) -> Union[str, Tuple[str, ...]]:
+        return formatters.TranslationFormatter(  # type: ignore[return-value]
             self.translation_key,
             self.locale,
             super().__getitem__(key),
@@ -41,19 +63,21 @@ class LazyTranslationTuple(tuple):
         ).format()
 
 
-def translate(key, **kwargs):
+def translate(key: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
     locale = kwargs.pop('locale', None) or config.get('locale')
     translation = translations.get(key, locale=locale)
     if isinstance(translation, tuple):
         return LazyTranslationTuple(key, locale, translation, kwargs)
     else:
-        return formatters.TranslationFormatter(key, locale, translation, kwargs).format()
+        return formatters.TranslationFormatter(
+            key, locale, translation, kwargs
+        ).format()  # type: ignore[return-value]
 
 
-def pluralize(key, locale, translation, count):
+def pluralize(key: str, locale: str, translation: Union[Dict[str, str], str], count: int) -> str:
     return_value = key
     try:
-        if type(translation) != dict:
+        if not isinstance(translation, dict):
             return_value = translation
             raise KeyError('use of count witouth dict for key {0}'.format(key))
         if count == 0:

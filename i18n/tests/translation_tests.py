@@ -92,6 +92,8 @@ class TestTranslationFormat(unittest.TestCase):
         translations.add("test", "321", config.get("fallback"))
         self.assertEqual(t("test"), "123")
         translations.clear("testloc")
+        # also try something inexistent
+        translations.clear("testloc-abc")
         self.assertEqual(t("test"), "321")
 
     def test_basic_placeholder(self):
@@ -107,7 +109,7 @@ class TestTranslationFormat(unittest.TestCase):
 
     def test_missing_placeholder_handler(self):
         def handler(translation_key, locale, text, key):
-            if key == 'name':
+            if key == "name":  # pragma: no branch
                 return 'stranger'
 
         config.set('on_missing_placeholder', handler)
@@ -186,7 +188,11 @@ class TestTranslationFormat(unittest.TestCase):
             t('foo.inexistent_func')
 
     def test_bad_locale_func(self):
-        custom_functions.add_function('p', lambda **kw: kw, config.get('locale'))
+        custom_functions.add_function(
+            "p",
+            lambda **kw: kw,  # type: ignore[arg-type]
+            config.get("locale"),
+        )
         with self.assertRaises(ValueError):
             t('foo.custom_func')
         custom_functions.locales_functions.clear()
