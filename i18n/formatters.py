@@ -5,7 +5,7 @@ except ImportError:
     # Python 3.6 doesn't have this
     Match = type(compile("").match(""))  # type: ignore
 from string import Template, Formatter as _Fmt
-from typing import Iterable, Optional, Set, Callable, Tuple
+from typing import Any, Iterable, Optional, Set, Callable, Tuple, TypeVar
 from collections.abc import Mapping
 
 from . import config, translations
@@ -18,7 +18,7 @@ from .custom_functions import get_function
 class Formatter(
     Template,
     Mapping,
-    metaclass=type(
+    metaclass=type(  # type: ignore[misc]
         "FormatterMeta",
         tuple(c for c in map(type, (Template, Mapping)) if c != type),
         {},
@@ -57,7 +57,7 @@ class Formatter(
             result.append(self.format())
         return tuple(result)
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         return self.kwargs[key]
 
     def __len__(self):
@@ -109,16 +109,16 @@ class TranslationFormatter(Formatter):
         else:
             return self.safe_substitute()
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         try:
             name, _, args = key.partition("(")
             if args:
                 f = get_function(name, self.locale)
                 if f:
                     i = f(**self.kwargs)
-                    args = args.strip(")").split(config.get("argument_delimiter"))
+                    arg_list = args.strip(")").split(config.get("argument_delimiter"))
                     try:
-                        return args[i]
+                        return arg_list[i]
                     except (IndexError, TypeError) as e:
                         raise ValueError(
                             "No argument {0!r} for function {1!r} (in {2!r})".format(
@@ -155,7 +155,7 @@ class StaticFormatter(Formatter):
     def _format_str(self) -> str:
         return self.safe_substitute()
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         delim = config.get("namespace_delimiter")
         full_key = key.lstrip(delim)
         if full_key == key:
@@ -185,11 +185,16 @@ class StaticFormatter(Formatter):
             )
 
 
-def expand_static_refs(keys: Iterable[str], locale: str):
+def expand_static_refs(keys: Iterable[str], locale: str) -> None:
     for key in keys:
         tr = translations.get(key, locale)
         tr = StaticFormatter(key, locale, tr).format()
         translations.add(key, tr, locale)
+
+
+# This is (hopefully) a temporary workaround
+# https://github.com/python/mypy/issues/15848
+StrOrLiteralStr = TypeVar("StrOrLiteralStr", str, str)
 
 
 class FilenameFormat(_Fmt):
@@ -208,14 +213,14 @@ class FilenameFormat(_Fmt):
     def match(self) -> Callable[[str], Optional[Match]]:
         return self.pattern.fullmatch
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> bool:
         if name.startswith("has_"):
             _, _, var_name = name.partition("_")
             if var_name in self.variables:
                 return var_name in self.used_variables
         raise AttributeError(f"{self.__class__.__name__!r} object has no attribute {name!r}")
 
-    def parse(self, s: str) -> Iterable[Tuple[str, None, None, None]]:
+    def parse(self, s: StrOrLiteralStr) -> Iterable[Tuple[StrOrLiteralStr, None, None, None]]:
         for text, field, spec, conversion in super().parse(s):
             if spec or conversion:
                 raise I18nInvalidFormat("Can't apply format spec or conversion in filename format")

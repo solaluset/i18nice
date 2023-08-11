@@ -10,7 +10,7 @@ loaders = {}
 PLURALS = {"zero", "one", "few", "many"}
 
 
-def register_loader(loader_class: Type[Loader], supported_extensions: Iterable[str]):
+def register_loader(loader_class: Type[Loader], supported_extensions: Iterable[str]) -> None:
     if not issubclass(loader_class, Loader):
         raise ValueError("loader class should be subclass of i18n.Loader")
 
@@ -49,7 +49,7 @@ def init_json_loader():
     register_loader(JsonLoader, ["json"])
 
 
-def load_config(filename: str):
+def load_config(filename: str) -> None:
     settings_data = load_resource(filename, "settings")
     for key, value in settings_data.items():
         config.set(key, value)
@@ -69,7 +69,7 @@ def get_namespace_from_filepath(filename: str) -> str:
     return namespace
 
 
-def load_translation_file(filename: str, base_directory: str, locale: Optional[str] = None):
+def load_translation_file(filename: str, base_directory: str, locale: Optional[str] = None) -> None:
     if locale is None:
         locale = config.get('locale')
     skip_locale_root_data = config.get('skip_locale_root_data')
@@ -86,7 +86,7 @@ def load_translation_file(filename: str, base_directory: str, locale: Optional[s
     formatters.expand_static_refs(loaded, locale)
 
 
-def load_everything(locale: Optional[str] = None):
+def load_everything(locale: Optional[str] = None) -> None:
     for directory in config.get("load_path"):
         recursive_load_everything(directory, "", locale)
 
@@ -101,8 +101,8 @@ def reload_everything():
     load_everything()
 
 
-def load_translation_dic(dic: dict, namespace: str, locale: str):
-    loaded = []
+def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str]:
+    loaded: List[str] = []
     if namespace:
         namespace += config.get('namespace_delimiter')
     for key, value in dic.items():
@@ -115,7 +115,7 @@ def load_translation_dic(dic: dict, namespace: str, locale: str):
     return loaded
 
 
-def search_translation(key: str, locale: Optional[str] = None):
+def search_translation(key: str, locale: Optional[str] = None) -> None:
     if locale is None:
         locale = config.get('locale')
     splitted_key = key.split(config.get('namespace_delimiter'))
@@ -124,7 +124,12 @@ def search_translation(key: str, locale: Optional[str] = None):
         recursive_search_dir(namespace, "", directory, locale)
 
 
-def recursive_search_dir(splitted_namespace: List[str], directory: str, root_dir: str, locale: str):
+def recursive_search_dir(
+    splitted_namespace: List[str],
+    directory: str,
+    root_dir: str,
+    locale: str,
+) -> None:
     namespace = splitted_namespace[0] if splitted_namespace else ""
     seeked_file = config.get("filename_format").format(
         namespace=namespace,
@@ -143,7 +148,7 @@ def recursive_search_dir(splitted_namespace: List[str], directory: str, root_dir
         )
 
 
-def recursive_load_everything(root_dir: str, directory: str, locale: Optional[str]):
+def recursive_load_everything(root_dir: str, directory: str, locale: Optional[str]) -> None:
     dir_ = os.path.join(root_dir, directory)
     for f in os.listdir(dir_):
         path = os.path.join(dir_, f)

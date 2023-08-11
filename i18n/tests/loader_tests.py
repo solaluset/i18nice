@@ -7,6 +7,7 @@ from unittest import mock
 import os
 import os.path
 import tempfile
+from typing import cast
 from importlib import reload
 
 import i18n
@@ -42,7 +43,7 @@ class TestFileLoader(unittest.TestCase):
         class BadLoader(Loader):
             pass
         with self.assertRaises(ValueError):
-            resource_loader.register_loader(WrongLoader, [])
+            resource_loader.register_loader(WrongLoader, [])  # type: ignore[arg-type]
         with self.assertRaises(NotImplementedError):
             BadLoader().load_resource(
                 os.path.join(RESOURCE_FOLDER, "translations", "en.json"),
@@ -342,6 +343,7 @@ en = {{"key": "value"}}
         self.assertTrue(translations.has("foo.mail_number"))
         translated_plural = translations.get("foo.mail_number")
         self.assertIsInstance(translated_plural, dict)
+        translated_plural = cast(dict, translated_plural)
         self.assertEqual(translated_plural["zero"], "You do not have any mail.")
         self.assertEqual(translated_plural["one"], "You have a new mail.")
         self.assertEqual(translated_plural["many"], "You have %{count} new mails.")

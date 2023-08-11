@@ -1,4 +1,4 @@
-from typing import Dict, Union, Tuple, overload
+from typing import Any, Dict, Union, Tuple, overload
 try:
     from typing import SupportsIndex
 except ImportError:
@@ -9,7 +9,7 @@ from . import resource_loader
 from . import translations, formatters
 
 
-def t(key: str, **kwargs) -> Union[str, "LazyTranslationTuple"]:
+def t(key: str, **kwargs: Any) -> Union[str, "LazyTranslationTuple"]:
     locale = kwargs.pop('locale', None) or config.get('locale')
     try:
         return translate(key, locale=locale, **kwargs)
@@ -35,7 +35,13 @@ class LazyTranslationTuple(tuple):
     locale: str
     kwargs: dict
 
-    def __new__(cls, translation_key: str, locale: str, value: tuple, kwargs: dict):
+    def __new__(
+        cls,
+        translation_key: str,
+        locale: str,
+        value: tuple,
+        kwargs: dict,
+    ) -> "LazyTranslationTuple":
         obj = super().__new__(cls, value)
         obj.translation_key = translation_key
         obj.locale = locale
@@ -52,12 +58,12 @@ class LazyTranslationTuple(tuple):
         return formatters.TranslationFormatter(  # type: ignore[return-value]
             self.translation_key,
             self.locale,
-            super().__getitem__(key),  # type: ignore[arg-type]
+            super().__getitem__(key),
             self.kwargs,
         ).format()
 
 
-def translate(key: str, **kwargs) -> Union[str, LazyTranslationTuple]:
+def translate(key: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
     locale = kwargs.pop('locale', None) or config.get('locale')
     translation = translations.get(key, locale=locale)
     if isinstance(translation, tuple):

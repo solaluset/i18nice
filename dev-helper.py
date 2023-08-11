@@ -131,9 +131,13 @@ def run_flake8():
     return subprocess.run((sys.executable, "-m", "flake8")).returncode == 0
 
 
+def run_mypy():
+    return subprocess.run((sys.executable, "-m", "mypy")).returncode == 0
+
+
 def check_coverage():
     from runpy import run_module
-    from coverage import Coverage
+    from coverage import Coverage  # type: ignore[import]
 
     cov = Coverage()
     cov.start()
@@ -158,7 +162,7 @@ def install():
 
 FUNCS = {
     "tests": (check_coverage,),
-    "checks": (format_files, run_flake8),
+    "checks": (format_files, run_flake8, run_mypy),
 }
 
 

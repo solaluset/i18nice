@@ -1,8 +1,8 @@
-from typing import Optional, Union, List, Dict
+from typing import Optional, Union, Tuple, Dict
 
 from . import config
 
-TranslationType = Union[str, Dict[str, str], List[str], List[Dict[str, str]]]
+TranslationType = Union[str, Dict[str, str], Tuple[str, ...], Tuple[Dict[str, str], ...]]
 container: Dict[str, Dict[str, TranslationType]] = {}
 
 
@@ -10,7 +10,7 @@ def add(
     key: str,
     value: TranslationType,
     locale: Optional[str] = None,
-):
+) -> None:
     if locale is None:
         locale = config.get('locale')
     container.setdefault(locale, {})[key] = value
@@ -28,7 +28,7 @@ def get(key: str, locale: Optional[str] = None) -> TranslationType:
     return container[locale][key]
 
 
-def clear(locale: Optional[str] = None):
+def clear(locale: Optional[str] = None) -> None:
     if locale is None:
         container.clear()
     elif locale in container:

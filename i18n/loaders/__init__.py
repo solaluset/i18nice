@@ -1,4 +1,4 @@
-__all__ = ("Loader", "PythonLoader", "I18nFileLoadError")
+__all__: tuple = ("Loader", "PythonLoader", "I18nFileLoadError")
 
 from .loader import Loader, I18nFileLoadError
 from .python_loader import PythonLoader

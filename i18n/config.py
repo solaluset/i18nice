@@ -48,7 +48,7 @@ settings = {
 }
 
 
-def set(key: str, value: Any):
+def set(key: str, value: Any) -> None:
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
     elif key == 'load_path':

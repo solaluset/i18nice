@@ -15,7 +15,9 @@ class PythonLoader(Loader):
         module_name, _ = os.path.splitext(name)
         try:
             spec = util.spec_from_file_location(module_name, filename)
-            assert spec is not None, "spec is None"
+            # loader is guaranteed to be not None if spec is not None
+            # but we check it anyway to make mypy happy
+            assert spec is not None and spec.loader, "spec is None"
             module = util.module_from_spec(spec)
             spec.loader.exec_module(module)
             return vars(module)

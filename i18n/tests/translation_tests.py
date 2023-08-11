@@ -188,7 +188,11 @@ class TestTranslationFormat(unittest.TestCase):
             t('foo.inexistent_func')
 
     def test_bad_locale_func(self):
-        custom_functions.add_function('p', lambda **kw: kw, config.get('locale'))
+        custom_functions.add_function(
+            "p",
+            lambda **kw: kw,  # type: ignore[arg-type]
+            config.get("locale"),
+        )
         with self.assertRaises(ValueError):
             t('foo.custom_func')
         custom_functions.locales_functions.clear()

@@ -7,7 +7,7 @@ global_functions: Dict[str, Function] = {}
 locales_functions: Dict[str, Dict[str, Function]] = defaultdict(dict)
 
 
-def add_function(name: str, func: Function, locale: Optional[str] = None):
+def add_function(name: str, func: Function, locale: Optional[str] = None) -> None:
     if locale:
         locales_functions[locale][name] = func
     else:
