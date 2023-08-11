@@ -183,6 +183,7 @@ en = {{"key": "value"}}
         config.set("filename_format", "{namespace}.{format}")
         i18n.load_everything()
         self.assertTrue(translations.has("d.d", "en"))
+        self.assertEquals(translations.get("d.ref", "en"), "e")
         i18n.unload_everything()
         config.set("skip_locale_root_data", True)
         i18n.load_everything("en")

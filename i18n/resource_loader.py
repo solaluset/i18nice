@@ -168,11 +168,12 @@ def recursive_load_everything(root_dir: str, directory: str, locale: Optional[st
                 file_content = load_resource(path, None, False)
                 for loc, dic in file_content.items():
                     if isinstance(dic, dict):
-                        load_translation_dic(
+                        loaded = load_translation_dic(
                             dic,
                             get_namespace_from_filepath(os.path.join(directory, f)),
                             loc,
                         )
+                        formatters.expand_static_refs(loaded, loc)
             else:
                 raise I18nFileLoadError(
                     f"Cannot identify locales for {path!r}:"
