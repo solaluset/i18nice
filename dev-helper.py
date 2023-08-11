@@ -19,6 +19,7 @@ def get_root():
 
 
 os.chdir(get_root())
+sys.argv[0] = os.path.basename(sys.argv[0])
 
 
 def ensure_venv(packages):
@@ -37,7 +38,7 @@ def ensure_venv(packages):
         pip_install(python_path, packages)
         sys.exit(
             subprocess.run(
-                (python_path, os.path.basename(sys.argv[0]), *sys.argv[1:]),
+                (python_path, sys.argv[0], *sys.argv[1:]),
             ).returncode,
         )
     else:
@@ -179,6 +180,7 @@ def main():
         ensure_venv(pkgs)
         with stash_unstaged():
             for func in funcs:
+                print("running", func.__name__)
                 if not func():
                     return 1, func.__name__ + " failed"
     elif args[0] == "install":
