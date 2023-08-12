@@ -13,7 +13,6 @@ def t(
     key: str,
     *,
     locale: Optional[str] = None,
-    default: Optional[str] = None,
     **kwargs: Any,
 ) -> Union[str, "LazyTranslationTuple"]:
     if not locale:
@@ -26,8 +25,6 @@ def t(
             return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
         elif locale != config.get('fallback'):
             return t(key, locale=config.get('fallback'), **kwargs)
-    if default is not None:
-        return default
     on_missing = config.get('on_missing_translation')
     if on_missing == "error":
         raise KeyError('key {0} not found'.format(key))
