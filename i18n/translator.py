@@ -15,6 +15,24 @@ def t(
     locale: Optional[str] = None,
     **kwargs: Any,
 ) -> Union[str, "LazyTranslationTuple"]:
+    """
+    Main translation function
+
+    Searches for translation in files if it's not already in cache
+    Tries fallback locale if search fails
+    If that also fails:
+      - Returns original key if `on_missing_translation` is not set
+      - Raises `KeyError` if it's set to `"error"`
+      - Returns result of calling it if it's set to a function
+
+    :param key: Translation key
+    :param locale: Locale to translate to (optional)
+    :param **kwargs: Keyword arguments used to interpolate placeholders
+    (including `count` for pluralization)
+    :return: The translation, return value of `on_missing_translation` or the original key
+    :raises KeyError: If translation wasn't found and `on_missing_translation` is set to `"error"`
+    """
+
     if not locale:
         locale = config.get("locale")
     try:

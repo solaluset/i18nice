@@ -11,6 +11,14 @@ PLURALS = {"zero", "one", "few", "many"}
 
 
 def register_loader(loader_class: Type[Loader], supported_extensions: Iterable[str]) -> None:
+    """
+    Registers loader for files
+
+    :param loader_class: Loader to register
+    :param supported_extensions: Iterable of file extensions that the loader supports
+    :raises ValueError: If `loader_class` is not a subclass of `i18n.Loader`
+    """
+
     if not issubclass(loader_class, Loader):
         raise ValueError("loader class should be subclass of i18n.Loader")
 
@@ -27,6 +35,8 @@ def load_resource(filename: str, root_data: Optional[str], remember_content: boo
 
 
 def init_loaders():
+    """Sets default loaders"""
+
     init_python_loader()
     if config.yaml_available:
         init_yaml_loader()
@@ -50,6 +60,12 @@ def init_json_loader():
 
 
 def load_config(filename: str) -> None:
+    """
+    Loads configuration from file
+
+    :param filename: File containing configuration
+    """
+
     settings_data = load_resource(filename, "settings")
     for key, value in settings_data.items():
         config.set(key, value)
@@ -87,16 +103,28 @@ def load_translation_file(filename: str, base_directory: str, locale: Optional[s
 
 
 def load_everything(locale: Optional[str] = None) -> None:
+    """
+    Loads all translations
+
+    If locale is provided, loads translations only for that locale
+
+    :param locale: Locale (optional)
+    """
+
     for directory in config.get("load_path"):
         recursive_load_everything(directory, "", locale)
 
 
 def unload_everything():
+    """Clears all cached translations"""
+
     translations.clear()
     Loader.loaded_files.clear()
 
 
 def reload_everything():
+    """Shortcut for unload_everything() + load_everything()"""
+
     unload_everything()
     load_everything()
 

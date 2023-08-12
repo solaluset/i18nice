@@ -49,6 +49,14 @@ settings = {
 
 
 def set(key: str, value: Any) -> None:
+    """
+    Sets config value
+
+    :param key: Setting to set
+    :param value: New value
+    :raises KeyError: If `key` is not a valid key
+    """
+
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
     elif key == 'load_path':
@@ -69,6 +77,14 @@ def set(key: str, value: Any) -> None:
 
 
 def get(key: str) -> Any:
+    """
+    Gets config value
+
+    :param key: Setting to get
+    :return: Associated value
+    :raises KeyError: If `key` is not a valid key
+    """
+
     return settings[key]
 
 
