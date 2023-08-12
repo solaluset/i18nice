@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union, Tuple, overload
+from typing import Any, Dict, Union, Tuple, Optional, overload
 try:
     from typing import SupportsIndex
 except ImportError:
@@ -9,18 +9,25 @@ from . import resource_loader
 from . import translations, formatters
 
 
-def t(key: str, **kwargs: Any) -> Union[str, "LazyTranslationTuple"]:
-    locale = kwargs.pop('locale', None) or config.get('locale')
+def t(
+    key: str,
+    *,
+    locale: Optional[str] = None,
+    default: Optional[str] = None,
+    **kwargs: Any,
+) -> Union[str, "LazyTranslationTuple"]:
+    if not locale:
+        locale = config.get("locale")
     try:
-        return translate(key, locale=locale, **kwargs)
+        return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
     except KeyError:
         resource_loader.search_translation(key, locale)
         if translations.has(key, locale):
-            return translate(key, locale=locale, **kwargs)
+            return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
         elif locale != config.get('fallback'):
             return t(key, locale=config.get('fallback'), **kwargs)
-    if 'default' in kwargs:
-        return kwargs['default']
+    if default is not None:
+        return default
     on_missing = config.get('on_missing_translation')
     if on_missing == "error":
         raise KeyError('key {0} not found'.format(key))
@@ -63,8 +70,7 @@ class LazyTranslationTuple(tuple):
         ).format()
 
 
-def translate(key: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
-    locale = kwargs.pop('locale', None) or config.get('locale')
+def translate(key: str, locale: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
     translation = translations.get(key, locale=locale)
     if isinstance(translation, tuple):
         return LazyTranslationTuple(key, locale, translation, kwargs)
