@@ -1,3 +1,10 @@
+"""
+This script automates testing and code quality checks
+It stashes unstaged changes before testing to ensure accurate results
+It also automatically manages virtual environment and dependencies
+Run "python dev-helper.py install" to install it as pre-commit hook in this repository
+"""
+
 import os
 import sys
 import stat
@@ -9,6 +16,8 @@ from contextlib import contextmanager
 
 VENV_DIR = "dev_env"
 REQUIREMENTS = "dev-requirements.txt"
+ON_CI = bool(os.getenv("CI"))
+SKIP_VENV = ON_CI or os.getenv("SKIP_VENV") == "1"
 
 
 def get_root():
@@ -24,25 +33,23 @@ sys.argv[0] = os.path.basename(sys.argv[0])
 
 def ensure_venv(packages):
     venv_dir = os.path.join(os.getcwd(), VENV_DIR)
-    if sys.prefix == venv_dir:
-        # already in venv
-        return
-    if os.getenv("SKIP_VENV") != "1":
-        if not os.path.isdir(venv_dir):
-            print("Creating virtual environment...")
-            subprocess.run((sys.executable, "-m", "venv", venv_dir), check=True)
-        python_path = os.path.join(
-            sysconfig.get_path("scripts", "venv", {"base": venv_dir}),
-            "python",
-        )
-        pip_install(python_path, packages)
-        sys.exit(
-            subprocess.run(
-                (python_path, sys.argv[0], *sys.argv[1:]),
-            ).returncode,
-        )
-    else:
+    if sys.prefix == venv_dir or SKIP_VENV:
+        # already in venv or skipping
+        print("Installing packages...")
         pip_install(sys.executable, packages)
+        return
+    if not os.path.isdir(venv_dir):
+        print("Creating virtual environment...")
+        subprocess.run((sys.executable, "-m", "venv", venv_dir), check=True)
+    python_path = os.path.join(
+        sysconfig.get_path("scripts", "venv", {"base": venv_dir}),
+        "python",
+    )
+    sys.exit(
+        subprocess.run(
+            (python_path, *sys.argv),
+        ).returncode,
+    )
 
 
 def pip_install(python, args):
@@ -149,7 +156,7 @@ def check_coverage():
     return (
         cov.report() == 100.0
         # always succeed on GA
-        or os.getenv("SKIP_VENV") == "1"
+        or ON_CI
     )
 
 
