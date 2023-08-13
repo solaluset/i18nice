@@ -19,7 +19,7 @@ def t(
     Main translation function
 
     Searches for translation in files if it's not already in cache
-    Tries fallback locale if search fails
+    Tries fallback locale if search fails and fallback is set
     If that also fails:
       - Returns original key if `on_missing_translation` is not set
       - Raises `KeyError` if it's set to `"error"`
@@ -41,8 +41,9 @@ def t(
         resource_loader.search_translation(key, locale)
         if translations.has(key, locale):
             return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
-        elif locale != config.get('fallback'):
-            return t(key, locale=config.get('fallback'), **kwargs)
+        fallback = config.get("fallback")
+        if fallback and fallback != locale:
+            return t(key, locale=fallback, **kwargs)
     on_missing = config.get('on_missing_translation')
     if on_missing == "error":
         raise KeyError('key {0} not found'.format(key))
