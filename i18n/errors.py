@@ -21,3 +21,8 @@ class I18nInvalidStaticRef(I18nException):
 class I18nInvalidFormat(I18nException):
     """Raised when provided filename_format is invalid"""
     pass
+
+
+class I18nLockedError(I18nException):
+    """Raised when trying to load locked translations"""
+    pass

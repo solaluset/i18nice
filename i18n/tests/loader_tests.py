@@ -12,7 +12,7 @@ from importlib import reload
 
 import i18n
 from i18n import resource_loader
-from i18n.errors import I18nFileLoadError, I18nInvalidFormat
+from i18n.errors import I18nFileLoadError, I18nInvalidFormat, I18nLockedError
 from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
@@ -216,6 +216,34 @@ en = {{"key": "value"}}
                 f.write('{"a": "c"}')
             i18n.reload_everything()
             self.assertEqual(t("test.a"), "c")
+
+    @unittest.skipUnless(json_available, "json library not available")
+    def test_load_everything_lock(self):
+        i18n.load_path[0] = os.path.join(RESOURCE_FOLDER, "translations", "bar")
+        config.set("file_format", "json")
+        resource_loader.init_json_loader()
+
+        i18n.load_everything(lock=True)
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything("some_locale")
+        # unlock
+        i18n.unload_everything()
+
+        i18n.load_everything("some_locale", lock=True)
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything("some_locale")
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything()
+        i18n.load_everything("en")
+        i18n.load_everything("en", lock=True)
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything("en")
+
+        # search should not be performed because we've locked translations
+        with mock.patch("i18n.resource_loader.recursive_search_dir", side_effect=RuntimeError):
+            t("abcd")
+
+        i18n.unload_everything()
 
     def test_multilingual_caching(self):
         resource_loader.init_python_loader()

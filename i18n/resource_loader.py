@@ -1,8 +1,9 @@
 import os.path
-from typing import Type, Iterable, Optional, List
+from typing import Type, Iterable, Optional, List, Set, Union
 
 from . import config
 from .loaders import Loader, I18nFileLoadError
+from .errors import I18nLockedError
 from . import translations, formatters
 
 loaders = {}
@@ -102,31 +103,63 @@ def load_translation_file(filename: str, base_directory: str, locale: Optional[s
     formatters.expand_static_refs(loaded, locale)
 
 
-def load_everything(locale: Optional[str] = None) -> None:
+_locked: Union[bool, Set[Union[str, None]]] = False
+
+
+def _check_locked(locale: Optional[str]) -> bool:
+    return _locked if isinstance(_locked, bool) else locale in _locked
+
+
+def load_everything(locale: Optional[str] = None, *, lock: bool = False) -> None:
     """
     Loads all translations
 
     If locale is provided, loads translations only for that locale
 
     :param locale: Locale (optional)
+    :param lock: Whether to lock translations after loading.
+    Locking disables further searching for missing translations
     """
+
+    global _locked
+
+    if _check_locked(locale):
+        raise I18nLockedError("Translations were locked, use unload_everything() to unlock")
 
     for directory in config.get("load_path"):
         recursive_load_everything(directory, "", locale)
+
+    if not lock:
+        return
+
+    if locale:
+        if isinstance(_locked, bool):
+            _locked = {None, locale}
+        else:
+            _locked.add(locale)
+    else:
+        _locked = True
 
 
 def unload_everything():
     """Clears all cached translations"""
 
+    global _locked
+
     translations.clear()
     Loader.loaded_files.clear()
+    _locked = False
 
 
-def reload_everything():
-    """Shortcut for unload_everything() + load_everything()"""
+def reload_everything(*, lock: bool = False) -> None:
+    """
+    Shortcut for `unload_everything()` + `load_everything()`
+
+    :param lock: Passed to `load_everything()`, see its description for more information
+    """
 
     unload_everything()
-    load_everything()
+    load_everything(lock=lock)
 
 
 def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str]:
@@ -146,6 +179,8 @@ def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str
 def search_translation(key: str, locale: Optional[str] = None) -> None:
     if locale is None:
         locale = config.get('locale')
+    if _check_locked(locale):
+        return
     splitted_key = key.split(config.get('namespace_delimiter'))
     namespace = splitted_key[:-1]
     for directory in config.get("load_path"):
