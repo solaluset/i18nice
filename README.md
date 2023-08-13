@@ -49,7 +49,7 @@ If you need full yaml functionalities, override it with a custom loader:
 
 ### Memoization
 
-Setting the configuration value `enable_memoization` will disable reloading of files every time when searching for missing translation.
+The configuration value `enable_memoization` (`True` by default) disables reloading of files every time when searching for missing translation.
 When translations are loaded, they're always stored in memory, hence it does not affect how existing translations are accessed.
 
 ### Load everything
@@ -60,6 +60,9 @@ You can call it with locale argument to load only one locale.
 `i18n.unload_everything()` will clear all caches.
 
 `i18n.reload_everything()` is just a shortcut for `unload_everything()` followed by `load_everything()`.
+
+For the best performance, you can pass `lock=True` to `load_everything()` to disable searching for missing translations completely.
+It'll prevent slowdowns caused by missing translations, but you'll need to use `unload_everything()` to be able to load files again.
 
 ### Namespaces
 
