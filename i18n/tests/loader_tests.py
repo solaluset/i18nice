@@ -27,6 +27,7 @@ class TestFileLoader(unittest.TestCase):
     def setUp(self):
         resource_loader.loaders = {}
         translations.container = {}
+        Loader.loaded_files = {}
         reload(config)
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations")])
         config.set("filename_format", "{namespace}.{locale}.{format}")
@@ -103,6 +104,8 @@ class TestFileLoader(unittest.TestCase):
         data = resource_loader.load_resource(file, "settings")
         self.assertIsInstance(data["maybe_bool"], str)
 
+        del Loader.loaded_files[file]
+
         i18n.register_loader(MyLoader, ["yml", "yaml"])
         data = resource_loader.load_resource(file, "settings")
         self.assertIsInstance(data["maybe_bool"], bool)
@@ -141,7 +144,8 @@ class TestFileLoader(unittest.TestCase):
         Second is a script that will remove the dummy file and load a dict of translations.
         Then we try to translate inexistent key to ensure that the script is not executed again.
         """
-        config.set("enable_memoization", True)
+        # should be enabled by default
+        self.assertTrue(config.get("enable_memoization"))
         config.set("file_format", "py")
         resource_loader.init_python_loader()
         memoization_file_name = 'memoize.en.py'
@@ -448,6 +452,7 @@ en = {{"key": "value"}}
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations")])
         config.set("filename_format", "{namespace}.{format}")
         config.set('skip_locale_root_data', True)
+        config.set("enable_memoization", False)
         config.set("locale", "en")
 
         self.assertEqual(t("static_ref.welcome"), "Welcome to Programname")

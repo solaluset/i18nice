@@ -43,7 +43,7 @@ settings = {
     'namespace_delimiter': '.',
     'plural_few': 5,
     'skip_locale_root_data': False,
-    'enable_memoization': False,
+    "enable_memoization": True,
     'argument_delimiter': '|'
 }
 
