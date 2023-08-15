@@ -3,6 +3,10 @@
 
 This library provides i18n functionality for Python 3 out of the box. The usage is mostly based on Rails i18n library.
 
+[CHANGELOG](CHANGELOG.md)
+
+[CONTRIBUTING](CONTRIBUTING.md)
+
 ## Installation
 
 Just run
