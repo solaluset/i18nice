@@ -81,6 +81,8 @@ class TestTranslationFormat(unittest.TestCase):
     def test_fallback(self):
         config.set('fallback', 'fr')
         self.assertEqual(t('foo.hello', name='Bob'), 'Salut Bob !')
+        config.set("fallback", None)
+        self.assertEqual(t("foo.hello"), "foo.hello")
 
     def test_fallback_from_resource(self):
         config.set('fallback', 'ja')
@@ -142,6 +144,9 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo.bad_plural', count=1), 'bar elems')
 
     def test_default(self):
+        def return_default(key, locale, **kwargs):
+            return kwargs.pop("default", key)
+        config.set("on_missing_translation", return_default)
         self.assertEqual(t('inexistent_key', default='foo'), 'foo')
 
     @unittest.skipUnless(config.json_available, "json library is not available")

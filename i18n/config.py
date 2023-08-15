@@ -1,3 +1,5 @@
+__all__ = ("set", "get")
+
 from typing import Any
 from importlib import reload as _reload
 
@@ -43,12 +45,20 @@ settings = {
     'namespace_delimiter': '.',
     'plural_few': 5,
     'skip_locale_root_data': False,
-    'enable_memoization': False,
+    "enable_memoization": True,
     'argument_delimiter': '|'
 }
 
 
 def set(key: str, value: Any) -> None:
+    """
+    Sets config value
+
+    :param key: Setting to set
+    :param value: New value
+    :raises KeyError: If `key` is not a valid key
+    """
+
     if key not in settings:
         raise KeyError("Invalid setting: {0}".format(key))
     elif key == 'load_path':
@@ -69,6 +79,14 @@ def set(key: str, value: Any) -> None:
 
 
 def get(key: str) -> Any:
+    """
+    Gets config value
+
+    :param key: Setting to get
+    :return: Associated value
+    :raises KeyError: If `key` is not a valid key
+    """
+
     return settings[key]
 
 

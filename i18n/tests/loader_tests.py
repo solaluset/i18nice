@@ -12,7 +12,7 @@ from importlib import reload
 
 import i18n
 from i18n import resource_loader
-from i18n.errors import I18nFileLoadError, I18nInvalidFormat
+from i18n.errors import I18nFileLoadError, I18nInvalidFormat, I18nLockedError
 from i18n.translator import t
 from i18n import config
 from i18n.config import json_available, yaml_available
@@ -27,6 +27,7 @@ class TestFileLoader(unittest.TestCase):
     def setUp(self):
         resource_loader.loaders = {}
         translations.container = {}
+        Loader.loaded_files = {}
         reload(config)
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations")])
         config.set("filename_format", "{namespace}.{locale}.{format}")
@@ -103,6 +104,8 @@ class TestFileLoader(unittest.TestCase):
         data = resource_loader.load_resource(file, "settings")
         self.assertIsInstance(data["maybe_bool"], str)
 
+        del Loader.loaded_files[file]
+
         i18n.register_loader(MyLoader, ["yml", "yaml"])
         data = resource_loader.load_resource(file, "settings")
         self.assertIsInstance(data["maybe_bool"], bool)
@@ -141,7 +144,8 @@ class TestFileLoader(unittest.TestCase):
         Second is a script that will remove the dummy file and load a dict of translations.
         Then we try to translate inexistent key to ensure that the script is not executed again.
         """
-        config.set("enable_memoization", True)
+        # should be enabled by default
+        self.assertTrue(config.get("enable_memoization"))
         config.set("file_format", "py")
         resource_loader.init_python_loader()
         memoization_file_name = 'memoize.en.py'
@@ -212,6 +216,34 @@ en = {{"key": "value"}}
                 f.write('{"a": "c"}')
             i18n.reload_everything()
             self.assertEqual(t("test.a"), "c")
+
+    @unittest.skipUnless(json_available, "json library not available")
+    def test_load_everything_lock(self):
+        i18n.load_path[0] = os.path.join(RESOURCE_FOLDER, "translations", "bar")
+        config.set("file_format", "json")
+        resource_loader.init_json_loader()
+
+        i18n.load_everything(lock=True)
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything("some_locale")
+        # unlock
+        i18n.unload_everything()
+
+        i18n.load_everything("some_locale", lock=True)
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything("some_locale")
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything()
+        i18n.load_everything("en")
+        i18n.load_everything("en", lock=True)
+        with self.assertRaises(I18nLockedError):
+            i18n.load_everything("en")
+
+        # search should not be performed because we've locked translations
+        with mock.patch("i18n.resource_loader.recursive_search_dir", side_effect=RuntimeError):
+            t("abcd")
+
+        i18n.unload_everything()
 
     def test_multilingual_caching(self):
         resource_loader.init_python_loader()
@@ -448,6 +480,7 @@ en = {{"key": "value"}}
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations")])
         config.set("filename_format", "{namespace}.{format}")
         config.set('skip_locale_root_data', True)
+        config.set("enable_memoization", False)
         config.set("locale", "en")
 
         self.assertEqual(t("static_ref.welcome"), "Welcome to Programname")

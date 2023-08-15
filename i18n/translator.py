@@ -1,4 +1,6 @@
-from typing import Any, Dict, Union, Tuple, overload
+__all__ = ("t",)
+
+from typing import Any, Dict, Union, Tuple, Optional, overload
 try:
     from typing import SupportsIndex
 except ImportError:
@@ -9,18 +11,41 @@ from . import resource_loader
 from . import translations, formatters
 
 
-def t(key: str, **kwargs: Any) -> Union[str, "LazyTranslationTuple"]:
-    locale = kwargs.pop('locale', None) or config.get('locale')
+def t(
+    key: str,
+    *,
+    locale: Optional[str] = None,
+    **kwargs: Any,
+) -> Union[str, "LazyTranslationTuple"]:
+    """
+    Main translation function
+
+    Searches for translation in files if it's not already in cache
+    Tries fallback locale if search fails and fallback is set
+    If that also fails:
+      - Returns original key if `on_missing_translation` is not set
+      - Raises `KeyError` if it's set to `"error"`
+      - Returns result of calling it if it's set to a function
+
+    :param key: Translation key
+    :param locale: Locale to translate to (optional)
+    :param **kwargs: Keyword arguments used to interpolate placeholders
+    (including `count` for pluralization)
+    :return: The translation, return value of `on_missing_translation` or the original key
+    :raises KeyError: If translation wasn't found and `on_missing_translation` is set to `"error"`
+    """
+
+    if not locale:
+        locale = config.get("locale")
     try:
-        return translate(key, locale=locale, **kwargs)
+        return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
     except KeyError:
         resource_loader.search_translation(key, locale)
         if translations.has(key, locale):
-            return translate(key, locale=locale, **kwargs)
-        elif locale != config.get('fallback'):
-            return t(key, locale=config.get('fallback'), **kwargs)
-    if 'default' in kwargs:
-        return kwargs['default']
+            return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
+        fallback = config.get("fallback")
+        if fallback and fallback != locale:
+            return t(key, locale=fallback, **kwargs)
     on_missing = config.get('on_missing_translation')
     if on_missing == "error":
         raise KeyError('key {0} not found'.format(key))
@@ -63,8 +88,7 @@ class LazyTranslationTuple(tuple):
         ).format()
 
 
-def translate(key: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
-    locale = kwargs.pop('locale', None) or config.get('locale')
+def translate(key: str, locale: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
     translation = translations.get(key, locale=locale)
     if isinstance(translation, tuple):
         return LazyTranslationTuple(key, locale, translation, kwargs)

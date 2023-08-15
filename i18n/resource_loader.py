@@ -1,8 +1,20 @@
+__all__ = (
+    "Loader",
+    "register_loader",
+    "init_loaders",
+    "load_config",
+    "load_everything",
+    "unload_everything",
+    "reload_everything",
+    "search_translation",
+)
+
 import os.path
-from typing import Type, Iterable, Optional, List
+from typing import Type, Iterable, Optional, List, Set, Union
 
 from . import config
 from .loaders import Loader, I18nFileLoadError
+from .errors import I18nLockedError
 from . import translations, formatters
 
 loaders = {}
@@ -11,6 +23,14 @@ PLURALS = {"zero", "one", "few", "many"}
 
 
 def register_loader(loader_class: Type[Loader], supported_extensions: Iterable[str]) -> None:
+    """
+    Registers loader for files
+
+    :param loader_class: Loader to register
+    :param supported_extensions: Iterable of file extensions that the loader supports
+    :raises ValueError: If `loader_class` is not a subclass of `i18n.Loader`
+    """
+
     if not issubclass(loader_class, Loader):
         raise ValueError("loader class should be subclass of i18n.Loader")
 
@@ -27,6 +47,8 @@ def load_resource(filename: str, root_data: Optional[str], remember_content: boo
 
 
 def init_loaders():
+    """Sets default loaders"""
+
     init_python_loader()
     if config.yaml_available:
         init_yaml_loader()
@@ -50,6 +72,12 @@ def init_json_loader():
 
 
 def load_config(filename: str) -> None:
+    """
+    Loads configuration from file
+
+    :param filename: File containing configuration
+    """
+
     settings_data = load_resource(filename, "settings")
     for key, value in settings_data.items():
         config.set(key, value)
@@ -86,19 +114,63 @@ def load_translation_file(filename: str, base_directory: str, locale: Optional[s
     formatters.expand_static_refs(loaded, locale)
 
 
-def load_everything(locale: Optional[str] = None) -> None:
+_locked: Union[bool, Set[Union[str, None]]] = False
+
+
+def _check_locked(locale: Optional[str]) -> bool:
+    return _locked if isinstance(_locked, bool) else locale in _locked
+
+
+def load_everything(locale: Optional[str] = None, *, lock: bool = False) -> None:
+    """
+    Loads all translations
+
+    If locale is provided, loads translations only for that locale
+
+    :param locale: Locale (optional)
+    :param lock: Whether to lock translations after loading.
+    Locking disables further searching for missing translations
+    """
+
+    global _locked
+
+    if _check_locked(locale):
+        raise I18nLockedError("Translations were locked, use unload_everything() to unlock")
+
     for directory in config.get("load_path"):
         recursive_load_everything(directory, "", locale)
 
+    if not lock:
+        return
+
+    if locale:
+        if isinstance(_locked, bool):
+            _locked = {None, locale}
+        else:
+            _locked.add(locale)
+    else:
+        _locked = True
+
 
 def unload_everything():
+    """Clears all cached translations"""
+
+    global _locked
+
     translations.clear()
     Loader.loaded_files.clear()
+    _locked = False
 
 
-def reload_everything():
+def reload_everything(*, lock: bool = False) -> None:
+    """
+    Shortcut for `unload_everything()` + `load_everything()`
+
+    :param lock: Passed to `load_everything()`, see its description for more information
+    """
+
     unload_everything()
-    load_everything()
+    load_everything(lock=lock)
 
 
 def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str]:
@@ -118,6 +190,8 @@ def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str
 def search_translation(key: str, locale: Optional[str] = None) -> None:
     if locale is None:
         locale = config.get('locale')
+    if _check_locked(locale):
+        return
     splitted_key = key.split(config.get('namespace_delimiter'))
     namespace = splitted_key[:-1]
     for directory in config.get("load_path"):

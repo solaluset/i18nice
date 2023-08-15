@@ -29,8 +29,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run tests
         run: python dev-helper.py run-tests
-        env:
-          SKIP_VENV: 1
       - name: Upload coverage
         # PyPy data isn't reliable because it changes trace function
         if: "!startsWith(matrix.python-version, 'pypy')"
@@ -48,5 +46,3 @@ jobs:
           python-version: "3.11"
       - name: Run checks
         run: python dev-helper.py run-checks
-        env:
-          SKIP_VENV: 1

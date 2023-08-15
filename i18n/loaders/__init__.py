@@ -1,6 +1,7 @@
 __all__: tuple = ("Loader", "PythonLoader", "I18nFileLoadError")
 
-from .loader import Loader, I18nFileLoadError
+from .loader import Loader
+from ..errors import I18nFileLoadError
 from .python_loader import PythonLoader
 from .. import config
 if config.json_available:

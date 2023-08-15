@@ -1,3 +1,5 @@
+__all__ = ("add", "get", "has", "clear")
+
 from typing import Optional, Union, Tuple, Dict
 
 from . import config
@@ -11,6 +13,14 @@ def add(
     value: TranslationType,
     locale: Optional[str] = None,
 ) -> None:
+    """
+    Adds translation to cache
+
+    :param key: Translation key
+    :param value: Translation
+    :param locale: Locale (optional). Uses default if not provided
+    """
+
     if locale is None:
         locale = config.get('locale')
     container.setdefault(locale, {})[key] = value
