@@ -1,5 +1,4 @@
 import re
-from urllib.parse import urljoin
 
 from setuptools import setup
 
@@ -9,7 +8,7 @@ long_description = open("README.md").read()
 # links on PyPI should have absolute URLs
 long_description = re.sub(
     r"(\[[^\]]+\]\()((?!https?:)[^\)]+)(\))",
-    lambda m: m.group(1) + urljoin(GITHUB_URL, "blob/master/" + m.group(2)) + m.group(3),
+    lambda m: m.group(1) + GITHUB_URL + "/blob/master/" + m.group(2) + m.group(3),
     long_description,
 )
 
@@ -23,7 +22,7 @@ setup(
     author_email='tuvistavie@gmail.com',
     maintainer="Krutyi 4el",
     url=GITHUB_URL,
-    download_url=urljoin(GITHUB_URL, "archive/master.zip"),
+    download_url=GITHUB_URL + "/archive/master.zip",
     license='MIT',
     packages=['i18n', 'i18n.loaders'],
     zip_safe=True,
