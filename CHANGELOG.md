@@ -2,6 +2,9 @@
 
 ### Hint: use `https://github.com/Krutyi-4el/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.9.1
+- Fixed links on PyPI
+
 ### v0.9.0
 - **(B)** Removed `default=` kwarg of `i18n.t()`. You can work around this change with a custom handler [like this](https://github.com/Krutyi-4el/i18nice/blob/01ed6bcd2234998b411f07c92c31639e719dbabb/i18n/tests/translation_tests.py#L147)
 - Added docstrings to public API
