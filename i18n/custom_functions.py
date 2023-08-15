@@ -1,3 +1,5 @@
+__all__ = ("add_function", "get_function")
+
 from collections import defaultdict
 from typing import Optional, Callable, Dict
 
