@@ -52,6 +52,7 @@ class TestTranslationFormat(unittest.TestCase):
         config.set('fallback', 'en')
         config.set('locale', 'en')
         config.set('file_format', 'py')
+        custom_functions.locales_functions.clear()
 
     def test_basic_translation(self):
         self.assertEqual(t('foo.normal_key'), 'normal_value')
@@ -100,6 +101,16 @@ class TestTranslationFormat(unittest.TestCase):
 
     def test_basic_placeholder(self):
         self.assertEqual(t('foo.hi', name='Bob'), 'Hello Bob !')
+
+    def test_braceless_placeholder(self):
+        translations.add("a", "%p(Hello|Goodbye) %name!")
+        self.assertEqual(t("a", name="test", count=1), "Hello test!")
+
+    def test_delimiter_escape(self):
+        # throw an error if escape is not recognised
+        config.set("on_missing_placeholder", "error")
+        translations.add("p", "%percent%%")
+        self.assertEqual(t("p", percent=99), "99%")
 
     def test_missing_placehoder(self):
         self.assertEqual(t('foo.hi'), 'Hello %{name} !')
@@ -200,7 +211,13 @@ class TestTranslationFormat(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             t('foo.custom_func')
-        custom_functions.locales_functions.clear()
+        custom_functions.add_function(
+            "p",
+            lambda **kw: kw["lol"],
+            config.get("locale"),
+        )
+        with self.assertRaises(KeyError):
+            t('foo.custom_func')
 
     def test_argument_delimiter_change(self):
         config.set('argument_delimiter', ',')

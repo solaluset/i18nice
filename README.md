@@ -88,6 +88,10 @@ You can of course use placeholders in your translations. With the default config
     i18n.add_translation('hi', 'Hello %{name} !')
     i18n.t('hi', name='Bob') # Hello Bob !
 
+Braces are optional if the identifier is separated from following words.
+
+To escape the delimiter you need to put it twice (like `%%`).
+
 ### Pluralization
 
 Pluralization is based on Rail i18n module. By passing a `count` variable to your translation, it will be pluralized. The translation value should be a dictionary with at least the keys `one` and `many`. You can add a `zero` or `few` key when needed, if it is not present `many` will be used instead. Here is a sample usage.

@@ -69,12 +69,16 @@ class Formatter(
         return self.kwargs.__iter__()
 
 
+class WrappedException(Exception):
+    pass
+
+
 class TranslationFormatter(Formatter):
     idpattern = r"""
         \w+                      # name
         (
             \(
-                [^\(\){}]*       # arguments
+                [^\(\)]*         # arguments
             \)
         )?
     """
@@ -106,10 +110,14 @@ class TranslationFormatter(Formatter):
         return super().format()
 
     def _format_str(self) -> str:
-        if config.get("on_missing_placeholder"):
-            return self.substitute()
-        else:
-            return self.safe_substitute()
+        try:
+            if config.get("on_missing_placeholder"):
+                return self.substitute()
+            else:
+                return self.safe_substitute()
+        except WrappedException as e:
+            # unwrap
+            raise e.args[0] from None
 
     def __getitem__(self, key: str) -> Any:
         try:
@@ -117,7 +125,12 @@ class TranslationFormatter(Formatter):
             if args:
                 f = get_function(name, self.locale)
                 if f:
-                    i = f(**self.kwargs)
+                    try:
+                        i = f(**self.kwargs)
+                    except KeyError as e:
+                        # wrap KeyError from user's function
+                        # to avoid treating it as missing placeholder
+                        raise WrappedException(e)
                     arg_list = args.strip(")").split(config.get("argument_delimiter"))
                     try:
                         return arg_list[i]
@@ -142,11 +155,8 @@ class TranslationFormatter(Formatter):
 
 class StaticFormatter(Formatter):
     idpattern = r"""
-        ({})
-        |
         ({}\w+)+
     """.format(
-        TranslationFormatter.idpattern,
         escape(config.get("namespace_delimiter")),
     )
 
@@ -160,9 +170,6 @@ class StaticFormatter(Formatter):
     def __getitem__(self, key: str) -> Any:
         delim = config.get("namespace_delimiter")
         full_key = key.lstrip(delim)
-        if full_key == key:
-            # not a static reference, skip
-            raise KeyError()
 
         for i in range(1, len(self.path) + 1):
             try:
