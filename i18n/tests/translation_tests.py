@@ -105,6 +105,12 @@ class TestTranslationFormat(unittest.TestCase):
         translations.add("a", "%p(Hello|Goodbye) %name!")
         self.assertEqual(t("a", name="test", count=1), "Hello test!")
 
+    def test_delimiter_escape(self):
+        # throw an error if escape is not recognised
+        config.set("on_missing_placeholder", "error")
+        translations.add("p", "%percent%%")
+        self.assertEqual(t("p", percent=99), "99%")
+
     def test_missing_placehoder(self):
         self.assertEqual(t('foo.hi'), 'Hello %{name} !')
 
