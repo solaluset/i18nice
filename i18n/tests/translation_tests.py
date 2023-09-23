@@ -52,6 +52,7 @@ class TestTranslationFormat(unittest.TestCase):
         config.set('fallback', 'en')
         config.set('locale', 'en')
         config.set('file_format', 'py')
+        custom_functions.locales_functions.clear()
 
     def test_basic_translation(self):
         self.assertEqual(t('foo.normal_key'), 'normal_value')
@@ -210,7 +211,13 @@ class TestTranslationFormat(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             t('foo.custom_func')
-        custom_functions.locales_functions.clear()
+        custom_functions.add_function(
+            "p",
+            lambda **kw: kw["lol"],
+            config.get("locale"),
+        )
+        with self.assertRaises(KeyError):
+            t('foo.custom_func')
 
     def test_argument_delimiter_change(self):
         config.set('argument_delimiter', ',')
