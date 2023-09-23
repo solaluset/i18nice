@@ -74,7 +74,7 @@ class TranslationFormatter(Formatter):
         \w+                      # name
         (
             \(
-                [^\(\){}]*       # arguments
+                [^\(\)]*         # arguments
             \)
         )?
     """
@@ -142,11 +142,8 @@ class TranslationFormatter(Formatter):
 
 class StaticFormatter(Formatter):
     idpattern = r"""
-        ({})
-        |
         ({}\w+)+
     """.format(
-        TranslationFormatter.idpattern,
         escape(config.get("namespace_delimiter")),
     )
 
@@ -160,9 +157,6 @@ class StaticFormatter(Formatter):
     def __getitem__(self, key: str) -> Any:
         delim = config.get("namespace_delimiter")
         full_key = key.lstrip(delim)
-        if full_key == key:
-            # not a static reference, skip
-            raise KeyError()
 
         for i in range(1, len(self.path) + 1):
             try:
