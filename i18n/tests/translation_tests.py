@@ -101,6 +101,10 @@ class TestTranslationFormat(unittest.TestCase):
     def test_basic_placeholder(self):
         self.assertEqual(t('foo.hi', name='Bob'), 'Hello Bob !')
 
+    def test_braceless_placeholder(self):
+        translations.add("a", "%p(Hello|Goodbye) %name!")
+        self.assertEqual(t("a", name="test", count=1), "Hello test!")
+
     def test_missing_placehoder(self):
         self.assertEqual(t('foo.hi'), 'Hello %{name} !')
 
