@@ -7,8 +7,8 @@ GITHUB_URL = "https://github.com/Krutyi-4el/i18nice"
 long_description = open("README.md").read()
 # links on PyPI should have absolute URLs
 long_description = re.sub(
-    r"(\[[^\]]+\]\()((?!https?:)[^\)]+)(\))",
-    lambda m: m.group(1) + GITHUB_URL + "/blob/master/" + m.group(2) + m.group(3),
+    r"(\[[^\]]+\]\()((?!https?:)[^\)]+\))",
+    f"\\1{GITHUB_URL}/blob/master/\\2",
     long_description,
 )
 
