@@ -16,7 +16,7 @@ jobs:
 
     - name: Build
       run: >
-        pip install build==0.10.0
+        pip install build==1.0.3
         && python -m build
 
     - name: Upload binaries to release
