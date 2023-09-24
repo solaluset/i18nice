@@ -2,6 +2,11 @@
 
 ### Hint: use `https://github.com/Krutyi-4el/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.10.0
+- Simplified static refs pattern
+- Added support for braceless placeholders and escaped delimiters
+- (pb) If a function registered with `i18n.add_function` raises `KeyError`, it will be reraised instead of being treated as a missing placeholder
+
 ### v0.9.1
 - Fixed links on PyPI
 
