@@ -38,11 +38,11 @@ def t(
     if not locale:
         locale = config.get("locale")
     try:
-        return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
+        return translate(key, locale, kwargs)  # type: ignore[arg-type]
     except KeyError:
         resource_loader.search_translation(key, locale)
         if translations.has(key, locale):
-            return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
+            return translate(key, locale, kwargs)  # type: ignore[arg-type]
         fallback = config.get("fallback")
         if fallback and fallback != locale:
             return t(key, locale=fallback, **kwargs)
@@ -88,8 +88,8 @@ class LazyTranslationTuple(tuple):
         ).format()
 
 
-def translate(key: str, locale: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
-    translation = translations.get(key, locale=locale)
+def translate(key: str, locale: str, kwargs: Any) -> Union[str, LazyTranslationTuple]:
+    translation = translations.get(key, locale)
     if isinstance(translation, tuple):
         return LazyTranslationTuple(key, locale, translation, kwargs)
     else:
