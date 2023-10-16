@@ -91,6 +91,7 @@ class TestTranslationFormat(unittest.TestCase):
 
     def test_clear_one_locale(self):
         config.set("locale", "testloc")
+        config.set("fallback", "en")
         translations.add("test", "123")
         translations.add("test", "321", config.get("fallback"))
         self.assertEqual(t("test"), "123")
