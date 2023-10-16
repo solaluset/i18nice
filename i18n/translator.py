@@ -67,8 +67,11 @@ def t(
         if resource_loader.search_translation(key, locale):
             return translate(key, locale, kwargs)
         fallback = config.get("fallback")
-        if fallback and fallback != locale:
-            return t(key, locale=fallback, **kwargs)
+        if fallback and (
+            translations.has(key, fallback)
+            or resource_loader.search_translation(key, fallback)
+        ):
+            return translate(key, fallback, kwargs)
     on_missing = config.get('on_missing_translation')
     if on_missing == "error":
         raise KeyError('key {0} not found'.format(key))
