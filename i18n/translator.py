@@ -1,6 +1,6 @@
 __all__ = ("t",)
 
-from typing import Any, Dict, Union, Tuple, Optional, overload
+from typing import Any, Dict, Union, Tuple, Optional, Literal, overload
 try:
     from typing import SupportsIndex
 except ImportError:
@@ -9,6 +9,29 @@ except ImportError:
 from . import config
 from . import resource_loader
 from . import translations, formatters
+
+
+# _list=True indicates that a tuple of translations is expected
+# this is purely for type checkers
+# it will NOT affect actual return types
+@overload
+def t(
+    key: str,
+    *,
+    locale: Optional[str] = None,
+    _list: Literal[False] = False,
+    **kwargs: Any,
+) -> str: ...
+
+
+@overload
+def t(
+    key: str,
+    *,
+    locale: Optional[str] = None,
+    _list: Literal[True],
+    **kwargs: Any,
+) -> "LazyTranslationTuple": ...
 
 
 def t(
