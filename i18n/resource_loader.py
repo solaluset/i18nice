@@ -187,9 +187,7 @@ def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str
     return loaded
 
 
-def search_translation(key: str, locale: Optional[str] = None) -> None:
-    if locale is None:
-        locale = config.get('locale')
+def search_translation(key: str, locale: str) -> None:
     if _check_locked(locale):
         return
     splitted_key = key.split(config.get('namespace_delimiter'))

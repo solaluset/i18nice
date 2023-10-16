@@ -60,12 +60,13 @@ def t(
 
     if not locale:
         locale = config.get("locale")
+    locale: str
     try:
-        return translate(key, locale, kwargs)  # type: ignore[arg-type]
+        return translate(key, locale, kwargs)
     except KeyError:
         resource_loader.search_translation(key, locale)
         if translations.has(key, locale):
-            return translate(key, locale, kwargs)  # type: ignore[arg-type]
+            return translate(key, locale, kwargs)
         fallback = config.get("fallback")
         if fallback and fallback != locale:
             return t(key, locale=fallback, **kwargs)

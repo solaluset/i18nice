@@ -384,7 +384,7 @@ en = {{"key": "value"}}
     def test_search_translation_yaml(self):
         resource_loader.init_yaml_loader()
         config.set("file_format", "yml")
-        resource_loader.search_translation("foo.normal_key")
+        resource_loader.search_translation("foo.normal_key", config.get("locale"))
         self.assertTrue(translations.has("foo.normal_key"))
 
     @unittest.skipUnless(json_available, "json library not available")
@@ -392,7 +392,7 @@ en = {{"key": "value"}}
         resource_loader.init_json_loader()
         config.set("file_format", "json")
 
-        resource_loader.search_translation("bar.baz.qux")
+        resource_loader.search_translation("bar.baz.qux", config.get("locale"))
         self.assertTrue(translations.has("bar.baz.qux"))
 
     @unittest.skipUnless(json_available, "json library not available")
@@ -400,7 +400,7 @@ en = {{"key": "value"}}
         resource_loader.init_json_loader()
         config.set("file_format", "json")
         config.set("filename_format", "{locale}.{format}")
-        resource_loader.search_translation("foo")
+        resource_loader.search_translation("foo", config.get("locale"))
         self.assertTrue(translations.has("foo"))
 
     @unittest.skipUnless(json_available, "json library not available")
@@ -409,7 +409,7 @@ en = {{"key": "value"}}
         config.set("file_format", "json")
         config.set("load_path", [RESOURCE_FOLDER])
         config.set("filename_format", "{locale}.{format}")
-        resource_loader.search_translation("translations.foo")
+        resource_loader.search_translation("translations.foo", config.get("locale"))
         self.assertTrue(translations.has("translations.foo"))
 
     @unittest.skipUnless(json_available, "json library not available")
@@ -420,7 +420,7 @@ en = {{"key": "value"}}
         config.set("filename_format", "{locale}.{format}")
         config.set('skip_locale_root_data', True)
         config.set("locale", "en")
-        resource_loader.search_translation("COMMON.VERSION")
+        resource_loader.search_translation("COMMON.VERSION", config.get("locale"))
         self.assertTrue(translations.has("COMMON.VERSION"))
         self.assertEqual(translations.get("COMMON.VERSION"), "version")
 
@@ -444,7 +444,7 @@ en = {{"key": "value"}}
         config.set("filename_format", "{locale}.{format}")
         config.set('skip_locale_root_data', True)
         config.set("locale", "en")
-        resource_loader.search_translation("TOP_MENU.TOP_BAR.LOGS")
+        resource_loader.search_translation("TOP_MENU.TOP_BAR.LOGS", config.get("locale"))
         self.assertTrue(translations.has("TOP_MENU.TOP_BAR.LOGS"))
         self.assertEqual(translations.get("TOP_MENU.TOP_BAR.LOGS"), "Logs")
 
