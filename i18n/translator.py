@@ -5,7 +5,10 @@ try:
     from typing import SupportsIndex, Literal
 except ImportError:
     SupportsIndex = int  # type: ignore
-    Literal = Union
+    # trick older versions
+    from collections import defaultdict
+    Literal = defaultdict(int)  # type: ignore
+    del defaultdict
 
 from . import config
 from . import resource_loader
