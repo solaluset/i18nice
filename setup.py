@@ -25,6 +25,9 @@ setup(
     download_url=GITHUB_URL + "/archive/master.zip",
     license='MIT',
     packages=['i18n', 'i18n.loaders'],
+    package_data={
+        "": ["py.typed"],
+    },
     zip_safe=True,
     test_suite='i18n.tests',
     extras_require={
