@@ -64,8 +64,7 @@ def t(
     try:
         return translate(key, locale, kwargs)
     except KeyError:
-        resource_loader.search_translation(key, locale)
-        if translations.has(key, locale):
+        if resource_loader.search_translation(key, locale):
             return translate(key, locale, kwargs)
         fallback = config.get("fallback")
         if fallback and fallback != locale:
