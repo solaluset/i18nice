@@ -74,7 +74,7 @@ def t(
             return translate(key, fallback, kwargs)
     on_missing = config.get('on_missing_translation')
     if on_missing == "error":
-        raise KeyError('key {0} not found'.format(key))
+        raise KeyError("key {!r} not found for {!r}".format(key, locale))
     elif on_missing:
         return on_missing(key, locale, **kwargs)
     else:
