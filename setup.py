@@ -14,7 +14,7 @@ long_description = re.sub(
 
 setup(
     name='i18nice',
-    version='0.10.0',
+    version="0.11.0",
     description='Translation library for Python',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -25,6 +25,9 @@ setup(
     download_url=GITHUB_URL + "/archive/master.zip",
     license='MIT',
     packages=['i18n', 'i18n.loaders'],
+    package_data={
+        "": ["py.typed"],
+    },
     zip_safe=True,
     test_suite='i18n.tests',
     extras_require={

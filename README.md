@@ -116,6 +116,8 @@ You can set a fallback which will be used when the key is not found in the defau
     i18n.add_translation('foo', 'bar', locale='en')
     i18n.t('foo') # bar
 
+Note that setting `locale` and `fallback` to the same value will result in `fallback` being `None`.
+
 ### Skip locale from root
 Sometimes i18n structure file came from another project or not contains root element with locale eg. `en` name.
 
@@ -127,6 +129,57 @@ However we would like to use this i18n .json file in our Python sub-project or m
 `i18nice` has special configuration that is skipping locale eg. `en` root data element from the file.
 
     i18n.set('skip_locale_root_data', True)
+
+### Lists
+
+It's possible to use lists of translations, for example:
+
+```yaml
+# translations.en.yml
+en:
+  days:
+    - Monday
+    - Tuesday
+    - Wednesday
+    ...
+```
+
+```python
+# translate.py
+from datetime import date
+import i18n
+
+i18n.load_path.append(".")
+# will print current day
+print(i18n.t("translations.days")[date.today().weekday()])
+```
+
+It's also possible to use pluralization in lists:
+
+```yml
+days:
+  - one: Monday
+    many: Mondays
+  ...
+```
+
+Note 1:
+The function actually returns a `LazyTranslationTuple` instead of `list`.
+
+Note 2:
+Because the tuple is lazy, it'll only process elements when they're requested.
+If you need to get fully processed translation, you can force it with `[:]`:
+
+```python
+# ({'one': 'Monday', 'many': 'Mondays'}, {'one': 'Tuesday', 'many': 'Tuesdays'}, ...)
+print(i18n.t("translations.days", count=3))
+# ('Mondays', 'Tuesdays', 'Wednesdays')
+print(i18n.t("translations.days", count=3)[:])
+```
+
+Note 3 (for type checking):
+`t` declares its return type as `str` by default. To simplify type checking in situations where lists are used, you can pass `_list=True` to it, which should have less overhead than calling `cast` and be less intrusive than `type: ignore` comment.
+**This will NOT affect actual return type and is purely for type checkers.**
 
 ### Static references
 

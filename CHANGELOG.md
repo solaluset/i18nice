@@ -2,6 +2,15 @@
 
 ### Hint: use `https://github.com/Krutyi-4el/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.11.0
+- Added `py.typed`
+- Added `_list` kwarg to `t` (only for type checkers)
+- **(B)** `fallback` is now `None` by default
+- (pb) Setting `locale` and `fallback` to the same value will now result in `fallback` being `None`
+- Error thrown on missing translation now mentions the locale
+- Missing translation is now reported with requested locale instead of fallback one
+- Minor optimizations
+
 ### v0.10.0
 - Simplified static refs pattern
 - Added support for braceless placeholders and escaped delimiters

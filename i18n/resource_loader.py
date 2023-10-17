@@ -187,15 +187,13 @@ def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str
     return loaded
 
 
-def search_translation(key: str, locale: Optional[str] = None) -> None:
-    if locale is None:
-        locale = config.get('locale')
-    if _check_locked(locale):
-        return
-    splitted_key = key.split(config.get('namespace_delimiter'))
-    namespace = splitted_key[:-1]
-    for directory in config.get("load_path"):
-        recursive_search_dir(namespace, "", directory, locale)
+def search_translation(key: str, locale: str) -> bool:
+    if not _check_locked(locale):
+        splitted_key = key.split(config.get('namespace_delimiter'))
+        namespace = splitted_key[:-1]
+        for directory in config.get("load_path"):
+            recursive_search_dir(namespace, "", directory, locale)
+    return translations.has(key, locale)
 
 
 def recursive_search_dir(

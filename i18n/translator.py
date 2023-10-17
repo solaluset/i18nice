@@ -2,13 +2,40 @@ __all__ = ("t",)
 
 from typing import Any, Dict, Union, Tuple, Optional, overload
 try:
-    from typing import SupportsIndex
+    from typing import SupportsIndex, Literal
 except ImportError:
     SupportsIndex = int  # type: ignore
+    # trick older versions
+    from collections import defaultdict
+    Literal = defaultdict(int)  # type: ignore
+    del defaultdict
 
 from . import config
 from . import resource_loader
 from . import translations, formatters
+
+
+# _list=True indicates that a tuple of translations is expected
+# this is purely for type checkers
+# it will NOT affect actual return types
+@overload
+def t(
+    key: str,
+    *,
+    locale: Optional[str] = None,
+    _list: Literal[False] = False,
+    **kwargs: Any,
+) -> str: ...
+
+
+@overload
+def t(
+    key: str,
+    *,
+    locale: Optional[str] = None,
+    _list: Literal[True],
+    **kwargs: Any,
+) -> "LazyTranslationTuple": ...
 
 
 def t(
@@ -37,18 +64,21 @@ def t(
 
     if not locale:
         locale = config.get("locale")
+    locale: str
     try:
-        return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
+        return translate(key, locale, kwargs)
     except KeyError:
-        resource_loader.search_translation(key, locale)
-        if translations.has(key, locale):
-            return translate(key, locale=locale, **kwargs)  # type: ignore[arg-type]
+        if resource_loader.search_translation(key, locale):
+            return translate(key, locale, kwargs)
         fallback = config.get("fallback")
-        if fallback and fallback != locale:
-            return t(key, locale=fallback, **kwargs)
+        if fallback and (
+            translations.has(key, fallback)
+            or resource_loader.search_translation(key, fallback)
+        ):
+            return translate(key, fallback, kwargs)
     on_missing = config.get('on_missing_translation')
     if on_missing == "error":
-        raise KeyError('key {0} not found'.format(key))
+        raise KeyError("key {!r} not found for {!r}".format(key, locale))
     elif on_missing:
         return on_missing(key, locale, **kwargs)
     else:
@@ -88,8 +118,8 @@ class LazyTranslationTuple(tuple):
         ).format()
 
 
-def translate(key: str, locale: str, **kwargs: Any) -> Union[str, LazyTranslationTuple]:
-    translation = translations.get(key, locale=locale)
+def translate(key: str, locale: str, kwargs: Dict[str, Any]) -> Union[str, LazyTranslationTuple]:
+    translation = translations.get(key, locale)
     if isinstance(translation, tuple):
         return LazyTranslationTuple(key, locale, translation, kwargs)
     else:

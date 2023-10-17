@@ -36,7 +36,7 @@ settings = {
     'available_locales': ['en'],
     'load_path': load_path,
     'locale': 'en',
-    'fallback': 'en',
+    "fallback": None,
     'placeholder_delimiter': '%',
     'on_missing_translation': None,
     'on_missing_placeholder': None,
@@ -71,6 +71,9 @@ def set(key: str, value: Any) -> None:
         value = FilenameFormat(value, FILENAME_VARS)
 
     settings[key] = value
+
+    if settings["locale"] == settings["fallback"]:
+        settings["fallback"] = None
 
     if key in ('placeholder_delimiter', 'namespace_delimiter'):
         from . import formatters

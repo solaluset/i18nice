@@ -184,14 +184,12 @@ class StaticFormatter(Formatter):
         from .resource_loader import search_translation
 
         full_key = key.lstrip(delim)
-        search_translation(full_key, self.locale)
-        try:
+        if search_translation(full_key, self.locale):
             return translations.get(full_key, self.locale)
-        except KeyError:
-            raise I18nInvalidStaticRef(
-                "no value found for static reference {!r} (in {!r})"
-                .format(key, self.translation_key),
-            )
+        raise I18nInvalidStaticRef(
+            "no value found for static reference {!r} (in {!r})"
+            .format(key, self.translation_key),
+        )
 
 
 def expand_static_refs(keys: Iterable[str], locale: str) -> None:

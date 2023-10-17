@@ -69,6 +69,7 @@ class TestTranslationFormat(unittest.TestCase):
         def handler(key, locale):
             return key + '_' + locale
 
+        config.set("fallback", "fr")
         config.set('on_missing_translation', handler)
         self.assertEqual(t('foo.inexistent'), 'foo.inexistent_en')
 
@@ -91,6 +92,7 @@ class TestTranslationFormat(unittest.TestCase):
 
     def test_clear_one_locale(self):
         config.set("locale", "testloc")
+        config.set("fallback", "en")
         translations.add("test", "123")
         translations.add("test", "321", config.get("fallback"))
         self.assertEqual(t("test"), "123")
