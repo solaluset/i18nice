@@ -118,7 +118,7 @@ class LazyTranslationTuple(tuple):
         ).format()
 
 
-def translate(key: str, locale: str, kwargs: Any) -> Union[str, LazyTranslationTuple]:
+def translate(key: str, locale: str, kwargs: Dict[str, Any]) -> Union[str, LazyTranslationTuple]:
     translation = translations.get(key, locale)
     if isinstance(translation, tuple):
         return LazyTranslationTuple(key, locale, translation, kwargs)
