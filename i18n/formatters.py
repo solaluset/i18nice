@@ -7,7 +7,7 @@ except ImportError:
     # Python 3.6 doesn't have this
     Match = type(compile("").match(""))  # type: ignore
 from string import Template, Formatter as _Fmt
-from typing import Any, Iterable, Optional, Set, Callable, Tuple, TypeVar
+from typing import Any, Iterable, Optional, Set, Callable, Tuple, TypeVar, NoReturn
 from collections.abc import Mapping
 
 from . import config, translations
@@ -28,17 +28,40 @@ class Formatter(
 ):
     delimiter = config.get("placeholder_delimiter")
 
+    # for mypy
+    _invalid: Callable[[Match], NoReturn]
+
     def __init__(self, translation_key: str, locale: str, value: TranslationType, kwargs: dict):
         super().__init__(value)  # type: ignore[arg-type]
         self.translation_key = translation_key
         self.locale = locale
         self.kwargs = kwargs
 
-    def substitute(self) -> str:  # type: ignore[override]
-        return super().substitute(self)
+    def substitute(self, static: bool = False) -> str:  # type: ignore[override]
+        def convert(mo):
+            named = mo.group("named") or mo.group("braced")
+            if named is not None:
+                try:
+                    return str(self[named])
+                except KeyError:
+                    on_missing = config.get("on_missing_placeholder")
+                    if not on_missing:
+                        return mo.group()
+                    if on_missing == "error":
+                        raise
+                    return on_missing(self.translation_key, self.locale, self.template, named)
+            if mo.group("escaped") is not None:
+                return self.delimiter if not static else mo.group()
+            if mo.group("invalid") is not None:  # pragma: no branch
+                if not static:
+                    self._invalid(mo)
+                else:
+                    return mo.group()
+            assert False, "Something went wrong. Please report this bug."  # pragma: no cover
+        return self.pattern.sub(convert, self.template)
 
     def safe_substitute(self) -> str:  # type: ignore[override]
-        return super().safe_substitute(self)
+        raise NotImplementedError("This isn't supposed to be called!")
 
     def _format_str(self) -> str:
         raise NotImplementedError
@@ -111,46 +134,37 @@ class TranslationFormatter(Formatter):
 
     def _format_str(self) -> str:
         try:
-            if config.get("on_missing_placeholder"):
-                return self.substitute()
-            else:
-                return self.safe_substitute()
+            return self.substitute()
         except WrappedException as e:
             # unwrap
             raise e.args[0] from None
 
     def __getitem__(self, key: str) -> Any:
-        try:
-            name, _, args = key.partition("(")
-            if args:
-                f = get_function(name, self.locale)
-                if f:
-                    try:
-                        i = f(**self.kwargs)
-                    except KeyError as e:
-                        # wrap KeyError from user's function
-                        # to avoid treating it as missing placeholder
-                        raise WrappedException(e)
-                    arg_list = args.strip(")").split(config.get("argument_delimiter"))
-                    try:
-                        return arg_list[i]
-                    except (IndexError, TypeError) as e:
-                        raise ValueError(
-                            "No argument {0!r} for function {1!r} (in {2!r})".format(
-                                i, name, self.template
-                            )
-                        ) from e
-                raise KeyError(
-                    "No function {0!r} found for locale {1!r} (in {2!r})".format(
-                        name, self.locale, self.template
-                    )
+        name, _, args = key.partition("(")
+        if args:
+            f = get_function(name, self.locale)
+            if f:
+                try:
+                    i = f(**self.kwargs)
+                except KeyError as e:
+                    # wrap KeyError from user's function
+                    # to avoid treating it as missing placeholder
+                    raise WrappedException(e)
+                arg_list = args.strip(")").split(config.get("argument_delimiter"))
+                try:
+                    return arg_list[i]
+                except (IndexError, TypeError) as e:
+                    raise ValueError(
+                        "No argument {0!r} for function {1!r} (in {2!r})".format(
+                            i, name, self.template
+                        )
+                    ) from e
+            raise KeyError(
+                "No function {0!r} found for locale {1!r} (in {2!r})".format(
+                    name, self.locale, self.template
                 )
-            return super().__getitem__(key)
-        except KeyError:
-            on_missing = config.get("on_missing_placeholder")
-            if not on_missing or on_missing == "error":
-                raise
-            return on_missing(self.translation_key, self.locale, self.template, key)
+            )
+        return super().__getitem__(key)
 
 
 class StaticFormatter(Formatter):
@@ -165,7 +179,7 @@ class StaticFormatter(Formatter):
         self.path = translation_key.split(config.get("namespace_delimiter"))
 
     def _format_str(self) -> str:
-        return self.safe_substitute()
+        return self.substitute(static=True)
 
     def __getitem__(self, key: str) -> Any:
         delim = config.get("namespace_delimiter")

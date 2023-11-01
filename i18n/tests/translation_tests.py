@@ -12,6 +12,7 @@ from i18n.translator import t
 from i18n import translations
 from i18n import config
 from i18n import custom_functions
+from i18n import formatters
 
 
 RESOURCE_FOLDER = os.path.dirname(__file__) + os.sep + 'resources' + os.sep
@@ -112,6 +113,7 @@ class TestTranslationFormat(unittest.TestCase):
         # throw an error if escape is not recognised
         config.set("on_missing_placeholder", "error")
         translations.add("p", "%percent%%")
+        formatters.expand_static_refs(("p",), config.get("locale"))
         self.assertEqual(t("p", percent=99), "99%")
 
     def test_missing_placehoder(self):
@@ -129,6 +131,11 @@ class TestTranslationFormat(unittest.TestCase):
 
         config.set('on_missing_placeholder', handler)
         self.assertEqual(t('foo.hi'), 'Hello stranger !')
+
+    def test_invalid_placeholder(self):
+        translations.add("p", "invalid: %")
+        with self.assertRaises(ValueError):
+            t("p")
 
     def test_basic_pluralization(self):
         self.assertEqual(t('foo.basic_plural', count=0), '0 elems')
