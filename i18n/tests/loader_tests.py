@@ -309,6 +309,8 @@ en = {{"key": "value"}}
         iter(fmt)
         with self.assertRaises(NotImplementedError):
             fmt.format()
+        with self.assertRaises(NotImplementedError):
+            fmt.safe_substitute()
 
         self.assertEqual(repr(formatters.FilenameFormat("", {})), "FilenameFormat('', {})")
 
