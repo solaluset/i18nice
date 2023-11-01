@@ -500,8 +500,13 @@ en = {{"key": "value"}}
         i18n.add_function("f", lambda: 0)
         self.assertEqual(t("static_ref.asArgument"), "ver")
 
-        with self.assertRaises(RecursionError):
-            t("static_ref2.foo")
+        try:
+            with self.assertRaises(RecursionError):
+                t("static_ref2.foo")
+        except TypeError:  # pragma: no cover
+            from platform import python_implementation
+            if python_implementation() != "PyPy":
+                raise
 
         config.set("namespace_delimiter", "/")
         with self.assertRaises(i18n.I18nInvalidStaticRef):
