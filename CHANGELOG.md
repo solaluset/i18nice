@@ -2,6 +2,10 @@
 
 ### Hint: use `https://github.com/Krutyi-4el/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.11.1
+- Fixed #25
+- (pb) Invalid placeholders will always emit an error
+
 ### v0.11.0
 - Added `py.typed`
 - Added `_list` kwarg to `t` (only for type checkers)
