@@ -283,6 +283,13 @@ en = {{"key": "value"}}
         self.assertIn("ほげ", data)
         self.assertEqual("ホゲ", data["ほげ"])
 
+    def test_seeked_file_is_dir(self):
+        i18n.register_loader(i18n.Loader, ("",))
+        config.set("filename_format", "{namespace}")
+
+        # should not try to load directory
+        t("bar.idk")
+
     def test_get_namespace_from_filepath_with_filename(self):
         tests = {
             "foo": "foo.ja.yml",

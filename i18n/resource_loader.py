@@ -214,18 +214,24 @@ def recursive_search_dir(
     locale: str,
 ) -> None:
     namespace = splitted_namespace[0] if splitted_namespace else ""
-    seeked_file = config.get("filename_format").format(
-        namespace=namespace,
-        locale=locale,
-        format=config.get("file_format"),
+    seeked_file = os.path.join(
+        directory,
+        config.get("filename_format").format(
+            namespace=namespace,
+            locale=locale,
+            format=config.get("file_format"),
+        ),
     )
-    dir_content = os.listdir(os.path.join(root_dir, directory))
-    if seeked_file in dir_content:
-        load_translation_file(os.path.join(directory, seeked_file), root_dir, locale)
-    elif namespace in dir_content:
+    if os.path.isfile(os.path.join(root_dir, seeked_file)):
+        return load_translation_file(seeked_file, root_dir, locale)
+
+    if not namespace:
+        return
+    namespace = os.path.join(directory, namespace)
+    if os.path.isdir(os.path.join(root_dir, namespace)):
         recursive_search_dir(
             splitted_namespace[1:],
-            os.path.join(directory, namespace),
+            namespace,
             root_dir,
             locale,
         )
