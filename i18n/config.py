@@ -51,6 +51,13 @@ settings = {
 }
 
 
+if "set" in globals():
+    # deja vu, we've just been in this place before
+    from . import formatters
+
+    _reload(formatters)
+
+
 def set(key: str, value: Any) -> None:
     """
     Sets config value

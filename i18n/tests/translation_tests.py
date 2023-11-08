@@ -237,3 +237,6 @@ class TestTranslationFormat(unittest.TestCase):
     def test_placeholder_delimiter_change(self):
         config.set('placeholder_delimiter', '$')
         self.assertEqual(t('foo.hi2', name='Bob'), 'Hello Bob !')
+        # should revert changes back
+        self.setUpClass()
+        self.assertNotEqual(t('foo.hi2', name='Bob'), 'Hello Bob !')
