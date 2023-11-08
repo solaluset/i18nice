@@ -46,7 +46,8 @@ settings = {
     'plural_few': 5,
     'skip_locale_root_data': False,
     "enable_memoization": True,
-    'argument_delimiter': '|'
+    "argument_delimiter": "|",
+    "use_locale_dirs": False,
 }
 
 

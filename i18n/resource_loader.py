@@ -138,7 +138,16 @@ def load_everything(locale: Optional[str] = None, *, lock: bool = False) -> None
         raise I18nLockedError("Translations were locked, use unload_everything() to unlock")
 
     for directory in config.get("load_path"):
-        recursive_load_everything(directory, "", locale)
+        if config.get("use_locale_dirs"):
+            for locale_dir in os.listdir(directory):
+                if locale and locale_dir != locale:
+                    continue
+                locale_dir_path = os.path.join(directory, locale_dir)
+                if not os.path.isdir(locale_dir_path):
+                    continue
+                recursive_load_everything(locale_dir_path, "", locale_dir)
+        else:
+            recursive_load_everything(directory, "", locale)
 
     if not lock:
         return
@@ -192,6 +201,8 @@ def search_translation(key: str, locale: str) -> bool:
         splitted_key = key.split(config.get('namespace_delimiter'))
         namespace = splitted_key[:-1]
         for directory in config.get("load_path"):
+            if config.get("use_locale_dirs"):
+                directory = os.path.join(directory, locale)
             recursive_search_dir(namespace, "", directory, locale)
     return translations.has(key, locale)
 

@@ -245,6 +245,25 @@ en = {{"key": "value"}}
 
         i18n.unload_everything()
 
+    @unittest.skipUnless(json_available, "json library not available")
+    def test_use_locale_dirs(self):
+        resource_loader.init_json_loader()
+        config.set("file_format", "json")
+        config.set("filename_format", "{namespace}.{format}")
+        config.set("skip_locale_root_data", True)
+        config.set("use_locale_dirs", True)
+
+        self.assertEqual(t("d.not_a_dict", locale="bar"), ())
+        try:
+            i18n.reload_everything(lock=True)
+            self.assertEqual(t("d.not_a_dict", locale="bar"), ())
+            self.assertIn("nested_dict_json", translations.container)
+            i18n.unload_everything()
+            i18n.load_everything("bar", lock=True)
+            self.assertNotIn("nested_dict_json", translations.container)
+        finally:
+            i18n.unload_everything()
+
     def test_multilingual_caching(self):
         resource_loader.init_python_loader()
         config.set("enable_memoization", True)

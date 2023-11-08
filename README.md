@@ -130,6 +130,38 @@ However we would like to use this i18n .json file in our Python sub-project or m
 
     i18n.set('skip_locale_root_data', True)
 
+### Different directory structure
+If your tree of translation files looks similar to this, you can enable `use_locale_dirs` to get the files properly loaded:
+
+```
+locales
+├── en-US
+│   ├── common.yml
+│   └── gui
+│       ├── page1.yml
+│       └── page2.yml
+└── fr-FR
+    ├── common.yml
+    └── gui
+        ├── page1.yml
+        └── page2.yml
+```
+
+Example code:
+
+```python
+import i18n
+
+i18n.load_path.append("locales")
+i18n.set("file_format", "yml")
+i18n.set("filename_format", "{namespace}.{format}")
+i18n.set("skip_locale_root_data", True)
+i18n.set("use_locale_dirs", True)
+
+print(i18n.t("common.text1", locale="en-US"))
+print(i18n.t("gui.page1.title", locale="en-US"))
+```
+
 ### Lists
 
 It's possible to use lists of translations, for example:
