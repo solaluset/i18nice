@@ -46,8 +46,16 @@ settings = {
     'plural_few': 5,
     'skip_locale_root_data': False,
     "enable_memoization": True,
-    'argument_delimiter': '|'
+    "argument_delimiter": "|",
+    "use_locale_dirs": False,
 }
+
+
+if "set" in globals():
+    # deja vu, we've just been in this place before
+    from . import formatters
+
+    _reload(formatters)
 
 
 def set(key: str, value: Any) -> None:

@@ -138,7 +138,16 @@ def load_everything(locale: Optional[str] = None, *, lock: bool = False) -> None
         raise I18nLockedError("Translations were locked, use unload_everything() to unlock")
 
     for directory in config.get("load_path"):
-        recursive_load_everything(directory, "", locale)
+        if config.get("use_locale_dirs"):
+            for locale_dir in os.listdir(directory):
+                if locale and locale_dir != locale:
+                    continue
+                locale_dir_path = os.path.join(directory, locale_dir)
+                if not os.path.isdir(locale_dir_path):
+                    continue
+                recursive_load_everything(locale_dir_path, "", locale_dir)
+        else:
+            recursive_load_everything(directory, "", locale)
 
     if not lock:
         return
@@ -192,6 +201,8 @@ def search_translation(key: str, locale: str) -> bool:
         splitted_key = key.split(config.get('namespace_delimiter'))
         namespace = splitted_key[:-1]
         for directory in config.get("load_path"):
+            if config.get("use_locale_dirs"):
+                directory = os.path.join(directory, locale)
             recursive_search_dir(namespace, "", directory, locale)
     return translations.has(key, locale)
 
@@ -203,18 +214,24 @@ def recursive_search_dir(
     locale: str,
 ) -> None:
     namespace = splitted_namespace[0] if splitted_namespace else ""
-    seeked_file = config.get("filename_format").format(
-        namespace=namespace,
-        locale=locale,
-        format=config.get("file_format"),
+    seeked_file = os.path.join(
+        directory,
+        config.get("filename_format").format(
+            namespace=namespace,
+            locale=locale,
+            format=config.get("file_format"),
+        ),
     )
-    dir_content = os.listdir(os.path.join(root_dir, directory))
-    if seeked_file in dir_content:
-        load_translation_file(os.path.join(directory, seeked_file), root_dir, locale)
-    elif namespace in dir_content:
+    if os.path.isfile(os.path.join(root_dir, seeked_file)):
+        return load_translation_file(seeked_file, root_dir, locale)
+
+    if not namespace:
+        return
+    namespace = os.path.join(directory, namespace)
+    if os.path.isdir(os.path.join(root_dir, namespace)):
         recursive_search_dir(
             splitted_namespace[1:],
-            os.path.join(directory, namespace),
+            namespace,
             root_dir,
             locale,
         )

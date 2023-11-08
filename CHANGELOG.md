@@ -2,6 +2,11 @@
 
 ### Hint: use `https://github.com/Krutyi-4el/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.12.0
+- Added `use_locale_dirs` setting
+- Improved file search
+- Config reloading is now more consistent
+
 ### v0.11.1
 - Fixed #25
 - (pb) Invalid placeholders will always emit an error
