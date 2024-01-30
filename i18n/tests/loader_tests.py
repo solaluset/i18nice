@@ -15,7 +15,7 @@ from i18n import resource_loader
 from i18n.errors import I18nFileLoadError, I18nInvalidFormat, I18nLockedError
 from i18n.translator import t
 from i18n import config
-from i18n.config import json_available, yaml_available
+from i18n.config import yaml_available
 from i18n import translator, translations, formatters
 from i18n.loaders import Loader
 
@@ -67,7 +67,6 @@ class TestFileLoader(unittest.TestCase):
         with self.assertRaisesRegex(I18nFileLoadError, "error loading file .*"):
             resource_loader.load_resource("foo.yml", "bar")
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_load_wrong_json_file(self):
         resource_loader.init_json_loader()
         with self.assertRaisesRegex(I18nFileLoadError, "error getting data .*"):
@@ -119,7 +118,6 @@ class TestFileLoader(unittest.TestCase):
                 "foo",
             )
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_load_json_file(self):
         resource_loader.init_json_loader()
         data = resource_loader.load_resource(
@@ -172,7 +170,6 @@ en = {{"key": "value"}}
             finally:
                 os.chdir(orig_wd)
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_load_everything(self):
         i18n.load_path[0] = os.path.join(RESOURCE_FOLDER, "translations", "bar")
         config.set("file_format", "json")
@@ -197,7 +194,6 @@ en = {{"key": "value"}}
         with self.assertRaises(I18nFileLoadError):
             i18n.load_everything()
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_reload_everything(self):
         config.set("skip_locale_root_data", True)
         config.set("file_format", "json")
@@ -217,7 +213,6 @@ en = {{"key": "value"}}
             i18n.reload_everything()
             self.assertEqual(t("test.a"), "c")
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_load_everything_lock(self):
         i18n.load_path[0] = os.path.join(RESOURCE_FOLDER, "translations", "bar")
         config.set("file_format", "json")
@@ -245,7 +240,6 @@ en = {{"key": "value"}}
 
         i18n.unload_everything()
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_use_locale_dirs(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -272,7 +266,6 @@ en = {{"key": "value"}}
         self.assertEqual(t("multilingual.hi"), "Hello")
         self.assertEqual(t("multilingual.hi", locale="uk"), "Привіт")
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_load_file_with_strange_encoding(self):
         resource_loader.init_json_loader()
         config.set("encoding", "euc-jp")
@@ -415,7 +408,6 @@ en = {{"key": "value"}}
         resource_loader.search_translation("foo.normal_key", config.get("locale"))
         self.assertTrue(translations.has("foo.normal_key"))
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_json(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -423,7 +415,6 @@ en = {{"key": "value"}}
         resource_loader.search_translation("bar.baz.qux", config.get("locale"))
         self.assertTrue(translations.has("bar.baz.qux"))
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_without_ns(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -431,7 +422,6 @@ en = {{"key": "value"}}
         resource_loader.search_translation("foo", config.get("locale"))
         self.assertTrue(translations.has("foo"))
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_path_as_ns(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -440,7 +430,6 @@ en = {{"key": "value"}}
         resource_loader.search_translation("translations.foo", config.get("locale"))
         self.assertTrue(translations.has("translations.foo"))
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_without_ns_nested_dict__two_levels_neting__default_locale(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -452,7 +441,6 @@ en = {{"key": "value"}}
         self.assertTrue(translations.has("COMMON.VERSION"))
         self.assertEqual(translations.get("COMMON.VERSION"), "version")
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_without_ns_nested_dict__two_levels_neting__other_locale(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -464,7 +452,6 @@ en = {{"key": "value"}}
         self.assertTrue(translations.has("COMMON.VERSION", locale="pl"))
         self.assertEqual(translations.get("COMMON.VERSION", locale="pl"), "wersja")
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_without_ns_nested_dict__default_locale(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -476,7 +463,6 @@ en = {{"key": "value"}}
         self.assertTrue(translations.has("TOP_MENU.TOP_BAR.LOGS"))
         self.assertEqual(translations.get("TOP_MENU.TOP_BAR.LOGS"), "Logs")
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_search_translation_without_ns_nested_dict__other_locale(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")
@@ -501,7 +487,6 @@ en = {{"key": "value"}}
         reload(config)
         self.assertIs(i18n.load_path, config.get("load_path"))
 
-    @unittest.skipUnless(json_available, "json library not available")
     def test_static_references(self):
         resource_loader.init_json_loader()
         config.set("file_format", "json")

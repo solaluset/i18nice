@@ -32,7 +32,7 @@ FILENAME_VARS = dict.fromkeys(
 
 settings = {
     'filename_format': '{namespace}.{locale}.{format}',
-    'file_format': 'yml' if yaml_available else 'json' if json_available else 'py',
+    'file_format': 'yml' if yaml_available else 'json',
     'available_locales': ['en'],
     'load_path': load_path,
     'locale': 'en',
