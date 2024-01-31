@@ -62,7 +62,7 @@ Please note that YAML format is used as default file format if you have `yaml` m
 If both `yaml` and `json` modules available and you want to use JSON to store translations, explicitly specify that: `i18n.set('file_format', 'json')`
 
 **!WARNING!**
-`yaml.FullLoader` is no longer used by default due to safety reason.
+`yaml.FullLoader` is no longer used by default.
 If you need full yaml functionalities, override it with a custom loader:
 
 ```python
