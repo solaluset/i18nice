@@ -169,7 +169,6 @@ class TestTranslationFormat(unittest.TestCase):
         config.set("on_missing_translation", return_default)
         self.assertEqual(t('inexistent_key', default='foo'), 'foo')
 
-    @unittest.skipUnless(config.json_available, "json library is not available")
     def test_skip_locale_root_data(self):
         config.set('filename_format', '{locale}.{format}')
         config.set('file_format', 'json')
@@ -179,7 +178,6 @@ class TestTranslationFormat(unittest.TestCase):
         self.assertEqual(t('foo'), 'Lorry')
         config.set('skip_locale_root_data', False)
 
-    @unittest.skipUnless(config.json_available, "json library is not available")
     def test_skip_locale_root_data_nested_json_dict__default_locale(self):
         config.set("file_format", "json")
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
@@ -189,7 +187,6 @@ class TestTranslationFormat(unittest.TestCase):
         resource_loader.init_json_loader()
         self.assertEqual(t('COMMON.START'), 'Start')
 
-    @unittest.skipUnless(config.json_available, "json library is not available")
     def test_skip_locale_root_data_nested_json_dict__other_locale(self):
         config.set("file_format", "json")
         config.set("load_path", [os.path.join(RESOURCE_FOLDER, "translations", "nested_dict_json")])
