@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 GITHUB_URL = "https://github.com/Krutyi-4el/i18nice"
-long_description = open("README.md", encoding = 'utf8').read()
+long_description = open("README.md", encoding="utf8").read()
 # links on PyPI should have absolute URLs
 long_description = re.sub(
     r"(\[[^\]]+\]\()((?!https?:)[^\)]+\))",
