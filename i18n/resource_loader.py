@@ -52,8 +52,7 @@ def init_loaders():
     init_python_loader()
     if config.yaml_available:
         init_yaml_loader()
-    if config.json_available:
-        init_json_loader()
+    init_json_loader()
 
 
 def init_python_loader():

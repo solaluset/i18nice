@@ -9,12 +9,6 @@ try:
 except ImportError:
     yaml_available = False
 
-try:
-    __import__("json")
-    json_available = True
-except ImportError:
-    json_available = False
-
 # try to get existing path object
 # in case if config is being reloaded
 try:
@@ -32,7 +26,7 @@ FILENAME_VARS = dict.fromkeys(
 
 settings = {
     'filename_format': '{namespace}.{locale}.{format}',
-    'file_format': 'yml' if yaml_available else 'json' if json_available else 'py',
+    'file_format': 'yml' if yaml_available else 'json',
     'available_locales': ['en'],
     'load_path': load_path,
     'locale': 'en',

@@ -77,7 +77,6 @@ def test_without(modules: Collection[str]) -> None:
 
 
 def main():
-    test_without(["json"])
     test_without(["yaml"])
     test_without([])
 
