@@ -2,6 +2,10 @@
 
 ### Hint: use `https://github.com/Krutyi-4el/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.13.0
+- Removed check for `json` availability
+- Improved README
+
 ### v0.12.0
 - Added `use_locale_dirs` setting
 - Improved file search
