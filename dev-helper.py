@@ -15,7 +15,7 @@ from contextlib import contextmanager
 
 
 VENV_DIR = "dev_env"
-REQUIREMENTS = "dev-requirements.txt"
+REQUIREMENTS = "requirements/dev-requirements.txt"
 ON_CI = bool(os.getenv("CI"))
 SKIP_VENV = ON_CI or os.getenv("SKIP_VENV") == "1"
 
