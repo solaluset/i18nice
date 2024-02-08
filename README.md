@@ -30,7 +30,7 @@ import i18n
 i18n.add_translation('foo', 'bar')
 i18n.t('foo') # bar
 ```
-    
+
 ### Using translation files
 
 YAML and JSON formats are supported to store translations. With the default configuration, if you have the following `foo.en.yml` file
@@ -57,7 +57,7 @@ import i18n
 i18n.load_path.append('/path/to/translations')
 i18n.t('foo.hi') # Hello world !
 ```
-        
+
 Please note that YAML format is used as default file format if you have `yaml` module installed.
 If both `yaml` and `json` modules available and you want to use JSON to store translations, explicitly specify that: `i18n.set('file_format', 'json')`
 
@@ -71,7 +71,7 @@ class MyLoader(i18n.loaders.YamlLoader):
 
 i18n.register_loader(MyLoader, ["yml", "yaml"])
 ```
-    
+
 ### Memoization
 
 The configuration value `enable_memoization` (`True` by default) disables reloading of files every time when searching for missing translation.
@@ -133,7 +133,7 @@ i18n.t('mail_number', count=1) # You have a new mail.
 i18n.t('mail_number', count=3) # You only have 3 new mails.
 i18n.t('mail_number', count=12) # You have 12 new mails.
 ```
-    
+
 ### Fallback
 
 You can set a fallback which will be used when the key is not found in the default locale.
@@ -144,7 +144,7 @@ i18n.set('fallback', 'en')
 i18n.add_translation('foo', 'bar', locale='en')
 i18n.t('foo') # bar
 ```
-    
+
 Note that setting `locale` and `fallback` to the same value will result in `fallback` being `None`.
 
 ### Skip locale from root
