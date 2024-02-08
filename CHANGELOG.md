@@ -2,6 +2,10 @@
 
 ### Hint: use `https://github.com/solaluset/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.13.1
+- Updated links due to account renaming
+- Moved to trusted publishing
+
 ### v0.13.0
 - Removed check for `json` availability
 - Improved README
