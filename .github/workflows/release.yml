@@ -20,8 +20,4 @@ jobs:
         && python -m build
 
     - name: Upload binaries to release
-      run: >
-        python -m twine upload dist/*
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      uses: pypa/gh-action-pypi-publish@release/v1
