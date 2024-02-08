@@ -3,7 +3,7 @@ import re
 from setuptools import setup
 
 
-GITHUB_URL = "https://github.com/Krutyi-4el/i18nice"
+GITHUB_URL = "https://github.com/solaluset/i18nice"
 long_description = open("README.md", encoding="utf8").read()
 # links on PyPI should have absolute URLs
 long_description = re.sub(
@@ -20,7 +20,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Daniel Perez',
     author_email='tuvistavie@gmail.com',
-    maintainer="Krutyi 4el",
+    maintainer="Sola Luset",
     url=GITHUB_URL,
     download_url=GITHUB_URL + "/archive/master.zip",
     license='MIT',

@@ -1,4 +1,4 @@
-# i18nice [![tests](https://github.com/Krutyi-4el/i18nice/actions/workflows/ci.yml/badge.svg)](https://github.com/Krutyi-4el/i18nice/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/Krutyi-4el/i18nice/badge.svg)](https://coveralls.io/github/Krutyi-4el/i18nice) [![pypi badge](https://img.shields.io/pypi/v/i18nice.svg)](https://pypi.org/project/i18nice/) [![Anaconda-Server Badge](https://anaconda.org/conda-forge/i18nice/badges/version.svg)](https://anaconda.org/conda-forge/i18nice)
+# i18nice [![tests](https://github.com/solaluset/i18nice/actions/workflows/ci.yml/badge.svg)](https://github.com/solaluset/i18nice/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/solaluset/i18nice/badge.svg)](https://coveralls.io/github/solaluset/i18nice) [![pypi badge](https://img.shields.io/pypi/v/i18nice.svg)](https://pypi.org/project/i18nice/) [![Anaconda-Server Badge](https://anaconda.org/conda-forge/i18nice/badges/version.svg)](https://anaconda.org/conda-forge/i18nice)
 
 This library provides i18n functionality for Python 3 out of the box. The usage is mostly based on Rails i18n library.
 
