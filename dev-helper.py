@@ -58,6 +58,11 @@ def pip_install(python, args):
 
 def get_packages(profile=None):
     result = []
+    if profile == "checks":
+        # collect all for checks
+        profile = None
+    elif profile is None or profile == "tests":
+        result.append(".[YAML]")
     collect = profile is None
     with open(REQUIREMENTS) as f:
         for line in f:
@@ -66,8 +71,6 @@ def get_packages(profile=None):
                 continue
             if collect:
                 result.append(line)
-    if profile is None or profile == "tests":
-        result.append(".[YAML]")
     return result
 
 
