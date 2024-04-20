@@ -66,6 +66,8 @@ def get_packages(profile=None):
                 continue
             if collect:
                 result.append(line)
+    if profile is None or profile == "tests":
+        result.append(".[YAML]")
     return result
 
 
