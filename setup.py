@@ -14,7 +14,7 @@ long_description = re.sub(
 
 setup(
     name='i18nice',
-    version="0.13.2",
+    version="0.13.3",
     description='Translation library for Python',
     long_description=long_description,
     long_description_content_type='text/markdown',

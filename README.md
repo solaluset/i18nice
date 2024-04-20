@@ -326,7 +326,7 @@ def determine_plural_form(*, count):
 i18n.add_function("p", determine_plural_form, "uk")
 i18n.t("days", count=1) # 1 день
 i18n.t("days", count=2) # 2 дні
-# i18n.t("days", count=5) # 5 днів
+i18n.t("days", count=5) # 5 днів
 ```
 
 ## Testing
