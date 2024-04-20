@@ -2,7 +2,7 @@
 coverage==6.2; python_version<'3.7'
 coverage==6.5.0; python_version>='3.7'
 # checks
-flake8==6.1.0
+flake8==7.0.0
 mypy==1.5.1
 types-PyYAML==6.0.12.20240311
 types-setuptools==69.5.0.20240415
