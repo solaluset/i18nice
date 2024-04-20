@@ -147,7 +147,7 @@ def run_mypy():
 
 def check_coverage():
     from runpy import run_module
-    from coverage import Coverage  # type: ignore[import]
+    from coverage import Coverage
 
     cov = Coverage()
     cov.start()
