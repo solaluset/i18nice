@@ -315,13 +315,13 @@ Example (correct plural form of days in Ukrainian):
 i18n.set("locale", "uk")
 i18n.add_translation("days", "%{count} %{p(день|дні|днів)}")
 
-def determine_plural_form(*, count):
+def determine_plural_form(args, *, count, **_):
     count = abs(count)
     if count % 10 >= 5 or count % 10 == 0 or (count % 100) in range(11, 20):
-        return 2
+        return args[2]
     elif count % 10 == 1:
-        return 0
-    return 1
+        return args[0]
+    return args[1]
 
 i18n.add_function("p", determine_plural_form, "uk")
 i18n.t("days", count=1) # 1 день
