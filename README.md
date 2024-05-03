@@ -306,9 +306,11 @@ print(i18n.t("am"))
 ### Custom functions
 
 Add your custom functions and choose translation variants during runtime.
-The function should accept one positional argument - the list of values specified between braces.
+
+The function should accept as many positional arguments as there are values specified between brackets.
 All keyword arguments given to `t` will be passed to the function.
 The call in translation will be substituted with the return value.
+
 This may be an alternative for pluralization, especially if a language has more than one plural form.
 
 Example (correct plural form of days in Ukrainian):
@@ -317,7 +319,7 @@ Example (correct plural form of days in Ukrainian):
 i18n.set("locale", "uk")
 i18n.add_translation("days", "%{count} %{p(день|дні|днів)}")
 
-def determine_plural_form(args, /, *, count, **_):
+def determine_plural_form(*args, count, **_):
     count = abs(count)
     if count % 10 >= 5 or count % 10 == 0 or (count % 100) in range(11, 20):
         return args[2]
