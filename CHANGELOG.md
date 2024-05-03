@@ -2,6 +2,9 @@
 
 ### Hint: use `https://github.com/solaluset/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.14.1
+- Updated README
+
 ### v0.14.0
 - **(B)** Changed custom functions interface. If you've used them, you basically need to change `lambda **kw: kw["count"] != 1` to `lambda a, **kw: a[kw["count"] != 1]`.
 
