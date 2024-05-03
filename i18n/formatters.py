@@ -144,21 +144,13 @@ class TranslationFormatter(Formatter):
         if args:
             f = get_function(name, self.locale)
             if f:
+                arg_list = args.strip(")").split(config.get("argument_delimiter"))
                 try:
-                    i = f(**self.kwargs)
+                    return f(arg_list, **self.kwargs)
                 except KeyError as e:
                     # wrap KeyError from user's function
                     # to avoid treating it as missing placeholder
                     raise WrappedException(e)
-                arg_list = args.strip(")").split(config.get("argument_delimiter"))
-                try:
-                    return arg_list[i]
-                except (IndexError, TypeError) as e:
-                    raise ValueError(
-                        "No argument {0!r} for function {1!r} (in {2!r})".format(
-                            i, name, self.template
-                        )
-                    ) from e
             raise KeyError(
                 "No function {0!r} found for locale {1!r} (in {2!r})".format(
                     name, self.locale, self.template

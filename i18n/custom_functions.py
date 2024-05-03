@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import Optional, Callable, Dict
 
 
-Function = Callable[..., int]
+Function = Callable[..., str]
 global_functions: Dict[str, Function] = {}
 locales_functions: Dict[str, Dict[str, Function]] = defaultdict(dict)
 

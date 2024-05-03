@@ -508,7 +508,7 @@ en = {{"key": "value"}}
         )
         self.assertEqual(t("static_ref.otherFile"), "FooBar")
 
-        i18n.add_function("f", lambda: 0)
+        i18n.add_function("f", lambda a: a[0])
         self.assertEqual(t("static_ref.asArgument"), "ver")
 
         try:
