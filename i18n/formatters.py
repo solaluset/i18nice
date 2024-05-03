@@ -146,7 +146,7 @@ class TranslationFormatter(Formatter):
             if f:
                 arg_list = args.strip(")").split(config.get("argument_delimiter"))
                 try:
-                    return f(arg_list, **self.kwargs)
+                    return f(*arg_list, **self.kwargs)
                 except KeyError as e:
                     # wrap KeyError from user's function
                     # to avoid treating it as missing placeholder

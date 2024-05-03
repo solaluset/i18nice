@@ -45,7 +45,7 @@ class TestTranslationFormat(unittest.TestCase):
         translations.add('foo.inexistent_func', '%{a(b|c)}')
         translations.add('foo.comma_separated_args', '%{f(1,2,3)}')
 
-        custom_functions.add_function('p', lambda a, **kw: a[kw['count'] != 1])
+        custom_functions.add_function('p', lambda *a, **kw: a[kw['count'] != 1])
 
     def setUp(self):
         config.set('on_missing_translation', None)
@@ -213,7 +213,7 @@ class TestTranslationFormat(unittest.TestCase):
     def test_bad_locale_func(self):
         custom_functions.add_function(
             "p",
-            lambda a, **kw: a[kw["lol"]],
+            lambda *a, **kw: a[kw["lol"]],
             config.get("locale"),
         )
         with self.assertRaises(KeyError):
@@ -221,7 +221,11 @@ class TestTranslationFormat(unittest.TestCase):
 
     def test_argument_delimiter_change(self):
         config.set('argument_delimiter', ',')
-        custom_functions.add_function('f', lambda a, **kw: a[kw['value'] - 1], config.get('locale'))
+        custom_functions.add_function(
+            "f",
+            lambda *a, **kw: a[kw["value"] - 1],
+            config.get("locale"),
+        )
         self.assertEqual(t('foo.comma_separated_args', value=1), '1')
         config.set('argument_delimiter', '|')
 
