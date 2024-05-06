@@ -1,1 +1,2 @@
-coveralls==4.0.0
+coveralls==3.3.1; python_version<'3.8'
+coveralls==4.0.0; python_version>='3.8'
