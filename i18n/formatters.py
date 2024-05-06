@@ -144,7 +144,11 @@ class TranslationFormatter(Formatter):
         if args:
             f = get_function(name, self.locale)
             if f:
-                arg_list = args.strip(")").split(config.get("argument_delimiter"))
+                args = args.strip(")")
+                if args:
+                    arg_list = args.split(config.get("argument_delimiter"))
+                else:
+                    arg_list = []
                 try:
                     return f(*arg_list, **self.kwargs)
                 except KeyError as e:
