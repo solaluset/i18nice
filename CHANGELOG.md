@@ -2,6 +2,9 @@
 
 ### Hint: use `https://github.com/solaluset/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.15.1
+- (pb) Positional arguments will not be passed to functions that don't have anything between brackets
+
 ### v0.15.0
 - **(B)** Changed custom functions again. Now it is `lambda *a, **kw: a[kw["count"] != 1]`.
 
