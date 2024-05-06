@@ -44,6 +44,10 @@ class TestTranslationFormat(unittest.TestCase):
         translations.add('foo.custom_func', '%{count} day%{p(|s)}')
         translations.add('foo.inexistent_func', '%{a(b|c)}')
         translations.add('foo.comma_separated_args', '%{f(1,2,3)}')
+        translations.add(
+            "foo.no_args_func",
+            "%count1 apples, %count2 bananas, %total() fruits total",
+        )
 
         custom_functions.add_function('p', lambda *a, **kw: a[kw['count'] != 1])
 
@@ -210,6 +214,17 @@ class TestTranslationFormat(unittest.TestCase):
         with self.assertRaises(KeyError):
             t('foo.inexistent_func')
 
+    def test_function_without_args(self):
+        custom_functions.add_function(
+            "total",
+            lambda **kw: kw["count1"] + kw["count2"],
+            config.get("locale"),
+        )
+        self.assertEqual(
+            t("foo.no_args_func", count1=7, count2=3),
+            "7 apples, 3 bananas, 10 fruits total",
+        )
+
     def test_bad_locale_func(self):
         custom_functions.add_function(
             "p",
@@ -226,8 +241,10 @@ class TestTranslationFormat(unittest.TestCase):
             lambda *a, **kw: a[kw["value"] - 1],
             config.get("locale"),
         )
-        self.assertEqual(t('foo.comma_separated_args', value=1), '1')
-        config.set('argument_delimiter', '|')
+        try:
+            self.assertEqual(t("foo.comma_separated_args", value=1), "1")
+        finally:
+            config.set("argument_delimiter", "|")
 
     def test_placeholder_delimiter_change(self):
         config.set('placeholder_delimiter', '$')
