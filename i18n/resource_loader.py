@@ -102,11 +102,11 @@ def load_translation_file(filename: str, base_directory: str, locale: Optional[s
     skip_locale_root_data = config.get('skip_locale_root_data')
     root_data = None if skip_locale_root_data else locale
     # if the file isn't dedicated to one locale and may contain other `root_data`s
-    remember_content = not config.get("filename_format").has_locale and root_data
+    remember_content = not config.get("filename_format").has_locale and bool(root_data)
     translations_dic = load_resource(
         os.path.join(base_directory, filename),
         root_data,
-        bool(remember_content),
+        remember_content,
     )
     namespace = get_namespace_from_filepath(filename)
     loaded = load_translation_dic(translations_dic, namespace, locale)
