@@ -187,7 +187,7 @@ def load_translation_dic(dic: dict, namespace: str, locale: str) -> Iterable[str
         namespace += config.get('namespace_delimiter')
     for key, value in dic.items():
         full_key = namespace + key
-        if isinstance(value, dict) and len(PLURALS.intersection(value)) < 2:
+        if isinstance(value, dict) and not PLURALS.issuperset(value):
             loaded.extend(load_translation_dic(value, full_key, locale))
         else:
             translations.add(full_key, value, locale)
