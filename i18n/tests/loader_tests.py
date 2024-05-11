@@ -401,6 +401,8 @@ en = {{"key": "value"}}
         self.assertEqual(translated_plural["one"], "You have a new mail.")
         self.assertEqual(translated_plural["many"], "You have %{count} new mails.")
 
+        self.assertEqual(translations.get("foo.not_plural.toomany"), "Too many")
+
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_search_translation_yaml(self):
         resource_loader.init_yaml_loader()

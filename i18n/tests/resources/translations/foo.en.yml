@@ -12,3 +12,7 @@ en:
     - one: Hello %{name}
       many: Hello %{name} and friends
     - Welcome %{name}
+  not_plural:
+    one: One
+    many: Many
+    toomany: Too many
