@@ -136,6 +136,14 @@ class TestFileLoader(unittest.TestCase):
         self.assertIn("foo", data)
         self.assertEqual("bar", data["foo"])
 
+    def test_load_empty_dict(self):
+        resource_loader.load_translation_dic(
+            {"empty": {}},
+            "",
+            config.get("locale"),
+        )
+        self.assertFalse(translations.has("empty"))
+
     def test_memoization_with_file(self):
         """This test creates two files.
         First is a dummy file.
