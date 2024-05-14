@@ -2,6 +2,9 @@
 
 ### Hint: use `https://github.com/solaluset/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.15.3
+- Locale can now be passed as positional argument
+
 ### v0.15.2
 - (pb) A dict will be considered plural only if all keys are plurals
 
