@@ -15,8 +15,8 @@ def add_function(name: str, func: Function, locale: Optional[str] = None) -> Non
 
     Registers the function to locale functions if locale is given
     or to global (locale-independent) functions otherwise
-    The function must accept all kwargs passed to `t` and return an int
-    (index that will determine which placeholder argument will be used)
+    The function must accept all args specified between brackets in translation,
+    all kwargs passed to `t` and return the string to be used for substitution
 
     :param name: Name used to register the function
     :param func: The function to register
