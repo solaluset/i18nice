@@ -20,7 +20,7 @@ except ImportError:
 
 FILENAME_VARS = dict.fromkeys(
     ("namespace", "locale", "format"),
-    r"\w+",
+    r"(?:\w|-)+",
 )
 
 
