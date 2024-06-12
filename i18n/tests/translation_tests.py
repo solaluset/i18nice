@@ -252,3 +252,8 @@ class TestTranslationFormat(unittest.TestCase):
         # should revert changes back
         self.setUpClass()
         self.assertNotEqual(t('foo.hi2', name='Bob'), 'Hello Bob !')
+
+    def test_path_with_hyphen(self):
+        config.set("file_format", "json")
+        config.set("filename_format", "{namespace}.{format}")
+        self.assertEqual(t("with-hyphen.test"), "ok")
