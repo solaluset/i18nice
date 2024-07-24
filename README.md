@@ -335,14 +335,14 @@ i18n.t("days", count=5) # 5 днів
 
 ## Development
 
-## Setup Platform
+### Setup
 You can setup the development virtual environment by `python dev-helper.py`.
+It also runs tests and code quality checks.
 
 You can create git pre-commit hook by `python dev-helper.py install`.
 
-## Testing
+### Testing
 You can run tests with `python dev-helper.py run-tests`.
 
-## Code Quality Checking
+### Code Quality Checking
 You can run code quality checks with `python dev-helper.py run-checks`.
-
