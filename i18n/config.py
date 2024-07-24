@@ -1,10 +1,10 @@
 __all__ = ("set", "get")
 
 from typing import Any
-from importlib import reload as _reload
+from importlib import reload as _reload, import_module
 
 try:
-    __import__("yaml")
+    import_module("yaml")
     yaml_available = True
 except ImportError:
     yaml_available = False
