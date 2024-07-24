@@ -5,7 +5,8 @@ from importlib import reload as _reload
 
 try:
     import yaml
-    
+    del yaml
+
     yaml_available = True
 except ImportError:
     yaml_available = False
