@@ -333,7 +333,7 @@ i18n.t("days", count=2) # 2 дні
 i18n.t("days", count=5) # 5 днів
 ```
 
-## Devlopment
+## Development
 
 ## Setup Platform
 You can setup the development virtual environment by `python dev-helper.py`.
@@ -343,6 +343,6 @@ You can create git pre-commit hook by `python dev-helper.py install`.
 ## Testing
 You can run tests with `python dev-helper.py run-tests`.
 
-## Checking
-You can run checks with `python dev-helper.py run-checks`.
+## Code Quality Checking
+You can run code quality checks with `python dev-helper.py run-checks`.
 
