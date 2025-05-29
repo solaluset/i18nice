@@ -142,6 +142,10 @@ class TestTranslationFormat(unittest.TestCase):
         with self.assertRaises(ValueError):
             t("p")
 
+    def test_placeholder_named_key(self):
+        translations.add("a", "%{key}")
+        self.assertEqual(t("a", key="b"), "b")
+
     def test_basic_pluralization(self):
         self.assertEqual(t('foo.basic_plural', count=0), '0 elems')
         self.assertEqual(t('foo.basic_plural', count=1), '1 elem')

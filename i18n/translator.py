@@ -13,6 +13,7 @@ from . import translations, formatters
 @overload
 def t(
     key: str,
+    /,
     locale: Optional[str] = None,
     *,
     _list: Literal[False] = False,
@@ -23,6 +24,7 @@ def t(
 @overload
 def t(
     key: str,
+    /,
     locale: Optional[str] = None,
     *,
     _list: Literal[True],
@@ -32,6 +34,7 @@ def t(
 
 def t(
     key: str,
+    /,
     locale: Optional[str] = None,
     **kwargs: Any,
 ) -> Union[str, "LazyTranslationTuple"]:
