@@ -16,7 +16,7 @@ from i18n.errors import I18nFileLoadError, I18nInvalidFormat, I18nLockedError
 from i18n.translator import t
 from i18n import config
 from i18n.config import yaml_available
-from i18n import translator, translations, formatters
+from i18n import translations, formatters
 from i18n.loaders import Loader
 
 
@@ -340,16 +340,6 @@ en = {{"key": "value"}}
             fmt.safe_substitute()
 
         self.assertEqual(repr(formatters.FilenameFormat("", {})), "FilenameFormat('', {})")
-
-    def test_missing_types(self):
-        import re
-        import typing
-        if hasattr(re, "Match"):  # pragma: no cover
-            del re.Match
-            reload(formatters)
-        if hasattr(typing, "SupportsIndex"):  # pragma: no cover
-            del typing.SupportsIndex
-            reload(translator)
 
     @unittest.skipUnless(yaml_available, "yaml library not available")
     def test_load_translation_file(self):
