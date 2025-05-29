@@ -2,6 +2,12 @@
 
 ### Hint: use `https://github.com/solaluset/i18nice/compare/v<version 1 (older)>...v<version 2 (newer)>` to see full code difference between versions
 
+### v0.16.0
+- Placeholders with hyphens are now supported
+- (pb) key argument is now positional-only
+- **(B)** dropped Python 3.6 and 3.7 support
+- Minor improvements
+
 ### v0.15.5
 - Paths with hyphens are now supported
 

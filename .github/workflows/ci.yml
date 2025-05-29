@@ -13,8 +13,12 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
+          - "3.14-dev"
           - "pypy-3.8"
           - "pypy-3.9"
+          - "pypy-3.10"
+          - "pypy-3.11"
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -31,7 +35,9 @@ jobs:
         if: "!startsWith(matrix.python-version, 'pypy')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pip install -r requirements/coveralls.txt && coveralls --service=github
+        run: |
+          python -c 'import sys; sys.exit(sys.version_info >= (3, 13))' || exit 0
+          pip install -r requirements/coveralls.txt && coveralls --service=github
 
   run-checks:
     runs-on: ubuntu-latest
@@ -40,6 +46,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Run checks
         run: python dev-helper.py run-checks
