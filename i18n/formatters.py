@@ -1,11 +1,6 @@
 __all__ = ("TranslationFormatter", "StaticFormatter", "FilenameFormat", "expand_static_refs")
 
-from re import compile, escape
-try:
-    from re import Match
-except ImportError:
-    # Python 3.6 doesn't have this
-    Match = type(compile("").match(""))  # type: ignore
+from re import Match, compile, escape
 from string import Template, Formatter as _Fmt
 from typing import Any, Iterable, Optional, Set, Callable, Tuple, TypeVar, NoReturn
 from collections.abc import Mapping
