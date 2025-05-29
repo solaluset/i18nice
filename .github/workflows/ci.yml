@@ -13,8 +13,12 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
+          - "3.14-dev"
           - "pypy-3.8"
           - "pypy-3.9"
+          - "pypy-3.10"
+          - "pypy-3.11"
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -40,6 +44,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Run checks
         run: python dev-helper.py run-checks
