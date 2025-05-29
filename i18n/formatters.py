@@ -17,6 +17,12 @@ from .errors import I18nInvalidStaticRef, I18nInvalidFormat
 from .custom_functions import get_function
 
 
+if config.get("namespace_delimiter") != "-":
+    _name_pattern = r"(\w|-)+"
+else:
+    _name_pattern = r"\w+"
+
+
 class Formatter(
     Template,
     Mapping,
@@ -97,8 +103,8 @@ class WrappedException(Exception):
 
 
 class TranslationFormatter(Formatter):
-    idpattern = r"""
-        \w+                      # name
+    idpattern = fr"""
+        {_name_pattern}          # name
         (
             \(
                 [^\(\)]*         # arguments
@@ -165,9 +171,10 @@ class TranslationFormatter(Formatter):
 
 class StaticFormatter(Formatter):
     idpattern = r"""
-        ({}\w+)+
+        ({}{})+
     """.format(
         escape(config.get("namespace_delimiter")),
+        _name_pattern,
     )
 
     def __init__(self, translation_key: str, locale: str, value: TranslationType):

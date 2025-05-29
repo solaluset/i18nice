@@ -529,6 +529,9 @@ en = {{"key": "value"}}
             if python_implementation() != "PyPy":
                 raise
 
+        config.set("namespace_delimiter", "-")
+        self.assertEqual(t("static_ref2-b"), "1")
+
         config.set("namespace_delimiter", "/")
         with self.assertRaises(i18n.I18nInvalidStaticRef):
             t("static_ref2/x")
