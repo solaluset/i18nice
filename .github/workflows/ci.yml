@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
         python-version:
           - "3.6"
           - "3.7"
@@ -37,7 +37,7 @@ jobs:
         run: pip install -r requirements/coveralls.txt && coveralls --service=github
 
   run-checks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
