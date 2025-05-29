@@ -4,7 +4,9 @@ from typing import Any
 from importlib import reload as _reload
 
 try:
-    __import__("yaml")
+    import yaml
+    del yaml
+
     yaml_available = True
 except ImportError:
     yaml_available = False

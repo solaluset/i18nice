@@ -1,21 +1,18 @@
 name: tests
-on: [push]
+on: [push, pull_request]
 jobs:
   run-tests:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
         python-version:
-          - "3.6"
-          - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
-          - "pypy-3.7"
           - "pypy-3.8"
           - "pypy-3.9"
     env:
@@ -37,7 +34,7 @@ jobs:
         run: pip install -r requirements/coveralls.txt && coveralls --service=github
 
   run-checks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
