@@ -1,14 +1,14 @@
 {
-  "pname": "Programname",
-  "welcome": "Welcome to %{.pname}",
+  "p-name": "Programname",
+  "welcome": "Welcome to %{.p-name}",
   "ver": "ver",
   "when": "e%{.ver}",
   "cool": {
-    "best": "%{.pname} is the best program %{.when}!",
+    "best": "%{.p-name} is the best program %{.when}!",
     "when": "n%{.when}",
     "downloads": {
-        "zero": "%{.pname} was %{.cool.when} downloaded :(",
-        "many": "%{.pname} was downloaded %{count} times!"
+        "zero": "%{.p-name} was %{.cool.when} downloaded :(",
+        "many": "%{.p-name} was downloaded %{count} times!"
     }
   },
   "otherFile": "%{.en.en.foo}",

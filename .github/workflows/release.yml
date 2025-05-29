@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Publish to PyPI
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
 
