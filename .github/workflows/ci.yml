@@ -36,9 +36,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          COVERALLS_SERVICE_NAME: github-actions
         run: |
           python -c 'import sys; sys.exit(sys.version_info >= (3, 13))' || exit 0
-          pip install -r requirements/coveralls.txt && coveralls --service=github-actions
+          pip install -r requirements/coveralls.txt && coveralls
 
   run-checks:
     runs-on: ubuntu-latest
