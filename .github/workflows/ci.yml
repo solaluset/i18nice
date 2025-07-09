@@ -39,7 +39,7 @@ jobs:
           COVERALLS_SERVICE_NAME: github-actions
         run: |
           python -c 'import sys; sys.exit(sys.version_info >= (3, 13))' || exit 0
-          pip install -r requirements/coveralls.txt && coveralls
+          pip install -r requirements/coveralls.txt && coveralls || exit 0
 
   run-checks:
     runs-on: ubuntu-latest
