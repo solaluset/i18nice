@@ -1,7 +1,7 @@
 from typing import Type, Union
 
 import yaml
-from yaml.loader import __all__ as _known_loaders  # type: ignore[attr-defined]
+from yaml.loader import __all__ as _known_loaders
 
 from . import Loader, I18nFileLoadError
 
