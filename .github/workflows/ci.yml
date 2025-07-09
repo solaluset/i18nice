@@ -39,7 +39,12 @@ jobs:
           COVERALLS_SERVICE_NAME: github-actions
         run: |
           python -c 'import sys; sys.exit(sys.version_info >= (3, 13))' || exit 0
-          pip install -r requirements/coveralls.txt && coveralls || exit 0
+          pip install -r requirements/coveralls.txt && coveralls
+          code=$?
+          if [ "$GITHUB_HEAD_REF" != "master" ]; then
+            exit 0
+          fi
+          exit $code
 
   run-checks:
     runs-on: ubuntu-latest
