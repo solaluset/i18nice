@@ -34,7 +34,7 @@ jobs:
         # PyPy data isn't reliable because it changes trace function
         if: "!startsWith(matrix.python-version, 'pypy')"
         env:
-          GITHIB_TOKEN: ${{ secrets.GITHIB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
           python -c 'import sys; sys.exit(sys.version_info >= (3, 13))' || exit 0
