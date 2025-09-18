@@ -21,7 +21,7 @@ else:
 class Formatter(
     Template,
     Mapping,
-    metaclass=type(  # type: ignore[misc]
+    metaclass=type(  # type: ignore[metaclass]
         "FormatterMeta",
         tuple(c for c in map(type, (Template, Mapping)) if c != type),
         {},
