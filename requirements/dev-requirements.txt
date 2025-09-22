@@ -1,6 +1,6 @@
 # tests
 coverage==7.6.1; python_version<'3.9'
-coverage==7.10.6; python_version>='3.9'
+coverage==7.10.7; python_version>='3.9'
 # checks
 flake8==7.3.0
 mypy==1.18.1
