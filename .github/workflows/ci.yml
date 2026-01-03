@@ -7,26 +7,23 @@ on:
   pull_request:
 
 jobs:
+  generate-matrix:
+    uses: solaluset/python-version-matrix/.github/workflows/generate.yml@v1.0
+    with:
+      runners: '[
+        "ubuntu-latest"
+      ]'
+      min-version: "3.8"
+      include-pre-releases: true
+      implementations: '["CPython", "PyPy"]'
+
   run-tests:
-    runs-on: ${{ matrix.os }}
+    needs: [generate-matrix]
+    runs-on: ${{ matrix.runner }}
     strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        python-version:
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14-dev"
-          - "pypy-3.8"
-          - "pypy-3.9"
-          - "pypy-3.10"
-          - "pypy-3.11"
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     env:
-      OS: ${{ matrix.os }}
+      OS: ${{ matrix.runner }}
       PYTHON: ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v6
@@ -45,7 +42,6 @@ jobs:
           COVERALLS_SERVICE_NAME: github-actions
         run: |
           set +e
-          python -c 'import sys; sys.exit(sys.version_info >= (3, 13))' || exit 0
           pip install -r requirements/coveralls.txt && coveralls
           code=$?
           if [ "$GITHUB_HEAD_REF" != "master" ]; then
