@@ -6,4 +6,4 @@ coverage==7.13.2; python_version>='3.10'
 flake8==7.3.0
 mypy==1.19.1
 types-PyYAML==6.0.12.20250915
-types-setuptools==80.10.0.20260124
+types-setuptools==81.0.0.20260209
