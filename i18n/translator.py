@@ -58,7 +58,6 @@ def t(
 
     if not locale:
         locale = config.get("locale")
-    locale: str
     try:
         return translate(key, locale, kwargs)
     except KeyError:

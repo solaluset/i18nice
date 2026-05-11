@@ -10,14 +10,14 @@ __all__ = (
 )
 
 import os.path
-from typing import Type, Iterable, Optional, List, Set, Union
+from typing import Dict, Type, Iterable, Optional, List, Set, Union
 
 from . import config
 from .loaders import Loader, I18nFileLoadError
 from .errors import I18nLockedError
 from . import translations, formatters
 
-loaders = {}
+loaders: Dict[str, Loader] = {}
 
 PLURALS = {"zero", "one", "few", "many"}
 
