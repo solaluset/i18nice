@@ -1,6 +1,6 @@
 __all__ = ("set", "get")
 
-from typing import Any
+from typing import Any, Dict
 from importlib import reload as _reload
 
 try:
@@ -26,7 +26,7 @@ FILENAME_VARS = dict.fromkeys(
 )
 
 
-settings = {
+settings: Dict[str, Any] = {
     'filename_format': '{namespace}.{locale}.{format}',
     'file_format': 'yml' if yaml_available else 'json',
     'available_locales': ['en'],
