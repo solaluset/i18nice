@@ -8,7 +8,7 @@ on:
 
 jobs:
   generate-matrix:
-    uses: solaluset/python-version-matrix/.github/workflows/generate.yml@v1.0
+    uses: solaluset/python-version-matrix/.github/workflows/generate.yml@v1.1.0
     with:
       runners: '[
         "ubuntu-latest"
