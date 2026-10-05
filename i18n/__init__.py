@@ -47,5 +47,3 @@ from .config import set, get
 init_default_loaders()
 
 load_path: List[str] = get("load_path")
-
-del List
