@@ -9,8 +9,8 @@ from . import Loader, I18nFileLoadError
 class YamlLoader(Loader):
     """class to load yaml files"""
 
-    loader: Union[  # type: ignore[valid-type]
-        tuple(Type[getattr(yaml, i)] for i in _known_loaders)
+    loader: Union[
+        tuple(Type[getattr(yaml, i)] for i in _known_loaders)  # type: ignore[valid-type]
     ] = yaml.BaseLoader
 
     def __init__(self):
