@@ -13,7 +13,7 @@ jobs:
       runners: '[
         "ubuntu-latest"
       ]'
-      min-version: "3.8"
+      min-version: "3.10"
       include-pre-releases: true
       implementations: '["CPython", "PyPy"]'
 
